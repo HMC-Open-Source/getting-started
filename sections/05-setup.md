@@ -1,0 +1,38 @@
+Follow these steps once per machine to get git connected to GitHub.
+
+**1. Create a GitHub account** at github.com if you haven't already.
+
+**2. Open a terminal and install git.** Installation varies by OS — visit git-scm.com for instructions.
+
+**3. Set your identity.** Use the same email as your GitHub account — this connects your commits to your profile.
+
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "your@email.com"
+```
+
+**4. Generate an SSH key.** SSH lets your machine talk to GitHub securely without entering a password every time.
+
+```bash
+ssh-keygen -t ed25519 -C "your@email.com"
+```
+
+When prompted, hit Enter to accept the default location. You can set a passphrase or hit Enter to skip.
+
+**5. Copy your public key.**
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Copy the entire output — from `ssh-ed25519` all the way to your email address.
+
+**6. Add the key to GitHub.** Go to GitHub → Settings → SSH and GPG keys → New SSH Key. Paste your key and save.
+
+**7. Test the connection.**
+
+```bash
+ssh -T git@github.com
+```
+
+You should see: *Hi username! You've successfully authenticated, but GitHub does not provide shell access.* That message is normal — it means it worked.
