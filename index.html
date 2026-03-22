@@ -22,7 +22,10 @@
 <!-- Page header -->
 <header class="page-header">
   <span class="octocat">🐙</span>
-  <h1>Get in the <span class="accent-green">Git</span><span class="accent-purple">Hub</span> Workflow</h1>
+  <h1>
+      Get in the <span class="accent-green">Git</span><span class="accent-purple">Hub</span> 
+      Workflow
+  </h1>
   <p class="subtitle">A beginner's guide to version control, collaboration, and contributing to open source — one commit at a time.</p>
   <button class="reset-btn" onclick="resetProgress()">Reset Progress</button>
 </header>
@@ -46,7 +49,7 @@
 
     <div class="md-section" data-src="sections/01-why-git.md"></div>
 
-    <div class="accordion">
+    <!-- <div class="accordion">
       <button class="accordion-btn" onclick="toggleAccordion(this)">
         <span>🔍 What does a diff actually look like?</span>
         <span class="chevron">▼</span>
@@ -62,7 +65,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 
   <hr />
@@ -70,7 +73,7 @@
   <!-- ══════════════════════════════════════════════════════
        SECTION 2 — COMMIT MESSAGES & HISTORY
   ══════════════════════════════════════════════════════ -->
-  <div class="step-section" id="section-commits">
+  <div class="step-section" id="section-commits" data-requires="quiz-1a">
     <div class="section-header">
       <span class="section-number">2</span>
       <h2>Commit messages &amp; history</h2>
@@ -229,19 +232,6 @@
       <span class="callout-icon">💡</span>
       <div>SSH is preferred over HTTPS because once it's set up, you never need to enter credentials again. When cloning, always choose the <strong>SSH</strong> tab on GitHub's Code button, not HTTPS.</div>
     </div>
-
-    <!-- Quiz 1 -->
-    <div class="quiz-block" id="quiz-1" data-hint="Think about which method avoids managing passwords or tokens.">
-      <h4>✦ Quick Check</h4>
-      <p class="quiz-question">Why do we use SSH to authenticate with GitHub instead of HTTPS?</p>
-      <ul class="quiz-options">
-        <li><button onclick="checkAnswer(this, false)">HTTPS doesn't work on Mac or Linux</button></li>
-        <li><button onclick="checkAnswer(this, false)">SSH is faster for large file transfers</button></li>
-        <li><button data-correct="true" onclick="checkAnswer(this, true)">SSH uses a key pair for authentication — once set up, no passwords or tokens needed</button></li>
-        <li><button onclick="checkAnswer(this, false)">HTTPS only works for public repos</button></li>
-      </ul>
-      <p class="quiz-feedback">Answer correctly to unlock the next section.</p>
-    </div>
   </div>
 
   <hr />
@@ -260,19 +250,6 @@
     <div class="callout note">
       <span class="callout-icon">ℹ️</span>
       <div>These steps are for starting a brand new project. If you're joining an existing repo, skip ahead to the Internal Contributor Workflow.</div>
-    </div>
-
-    <!-- Quiz 2 -->
-    <div class="quiz-block" id="quiz-2" data-hint="Think about what the -u flag does and when you only need it.">
-      <h4>✦ Quick Check</h4>
-      <p class="quiz-question">You've just created a new branch called <code>fix-header</code> and made your first commit. What command pushes this branch to GitHub for the first time?</p>
-      <ul class="quiz-options">
-        <li><button onclick="checkAnswer(this, false)">git push</button></li>
-        <li><button onclick="checkAnswer(this, false)">git push origin main</button></li>
-        <li><button data-correct="true" onclick="checkAnswer(this, true)">git push -u origin fix-header</button></li>
-        <li><button onclick="checkAnswer(this, false)">git push --set-upstream fix-header origin</button></li>
-      </ul>
-      <p class="quiz-feedback">Answer correctly to unlock the next section.</p>
     </div>
   </div>
 
@@ -392,20 +369,6 @@ fatal: Could not read from remote repository.</pre>
         <li onclick="toggleCheck(this)"><span class="check-icon">✓</span> Merged and cleaned up the branch</li>
       </ul>
     </div>
-
-    <!-- Quiz 3 -->
-    <div class="quiz-block" id="quiz-3" data-hint="Think about the order of operations — you need to commit before you can pull, because git needs your work saved before it can attempt a merge.">
-      <h4>✦ Quick Check</h4>
-      <p class="quiz-question">What is the correct order of steps before opening a pull request on an internal contributor workflow?</p>
-      <ul class="quiz-options">
-        <li><button onclick="checkAnswer(this, false)">git pull → git add → git commit → git push</button></li>
-        <li><button data-correct="true" onclick="checkAnswer(this, true)">git add → git commit → git pull origin main → git push</button></li>
-        <li><button onclick="checkAnswer(this, false)">git add → git push → git commit → git pull</button></li>
-        <li><button onclick="checkAnswer(this, false)">git commit → git add → git pull → git push</button></li>
-      </ul>
-      <p class="quiz-feedback">Answer correctly to unlock the next section.</p>
-    </div>
-  </div>
 
   <hr />
 
