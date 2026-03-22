@@ -36,3 +36,11 @@ ssh -T git@github.com
 ```
 
 You should see: *Hi username! You've successfully authenticated, but GitHub does not provide shell access.* That message is normal — it means it worked.
+
+[QUIZ id="quiz-1" hint="Think about which method avoids managing passwords or tokens."]
+Q: Why do we use SSH to authenticate with GitHub instead of HTTPS?
+- HTTPS doesn't work on Mac or Linux
+- SSH is faster for large file transfers
+* SSH uses a key pair for authentication — once set up, no passwords or tokens needed
+- HTTPS only works for public repos
+[/QUIZ]

@@ -45,3 +45,11 @@ git switch main
 git pull origin main
 git branch -d your-branch-name
 ```
+
+[QUIZ id="quiz-3" hint="Think about the order of operations — you need to commit before you can pull, because git needs your work saved before it can attempt a merge."]
+Q: What is the correct order of steps before opening a pull request?
+- git pull → git add → git commit → git push
+* git add → git commit → git pull origin main → git push
+- git add → git push → git commit → git pull
+- git commit → git add → git pull → git push
+[/QUIZ]

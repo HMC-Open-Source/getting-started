@@ -280,6 +280,45 @@ function parseMarkdown(md) {
   // Handle [INTERACTIVE: file-explorer] tag
   md = md.replace(/\[INTERACTIVE:\s*file-explorer\]/gi, getFileExplorerHTML());
 
+  // Handle [QUIZ] blocks
+  // Syntax:
+  //   [QUIZ id="quiz-1" hint="Your hint here"]
+  //   Q: Your question text?
+  //   - Wrong answer
+  //   - Another wrong answer
+  //   * Correct answer (asterisk marks correct)
+  //   [/QUIZ]
+  md = md.replace(/\[QUIZ([^\]]*)\]([\s\S]*?)\[\/QUIZ\]/gi, (_, attrs, body) => {
+    const id    = (attrs.match(/id="([^"]+)"/)    || [])[1] || 'quiz-' + Math.random().toString(36).slice(2,7);
+    const hint  = (attrs.match(/hint="([^"]+)"/)  || [])[1] || 'Think carefully about each option.';
+
+    const lines  = body.trim().split('\n').map(l => l.trim()).filter(Boolean);
+    const qLine  = lines.find(l => l.startsWith('Q:'));
+    const question = qLine ? qLine.replace(/^Q:\s*/, '') : 'Question';
+
+    const options = lines
+      .filter(l => l.startsWith('-') || l.startsWith('*'))
+      .map(l => {
+        const correct = l.startsWith('*');
+        const text    = l.replace(/^[-*]\s*/, '');
+        return { text, correct };
+      });
+
+    const optionsHtml = options.map(o =>
+      `<li><button ${o.correct ? 'data-correct="true" ' : ''}onclick="checkAnswer(this, ${o.correct})">${o.text}</button></li>`
+    ).join('\n        ');
+
+    return `
+<div class="quiz-block" id="${id}" data-hint="${hint}">
+  <h4>✦ Quick Check</h4>
+  <p class="quiz-question">${question}</p>
+  <ul class="quiz-options">
+    ${optionsHtml}
+  </ul>
+  <p class="quiz-feedback">Answer correctly to unlock the next section.</p>
+</div>`;
+  });
+
   // Protect raw HTML blocks (divs, spans) from being mangled
   const htmlBlocks = [];
   md = md.replace(/(<(?:div|span)[^>]*>[\s\S]*?<\/(?:div|span)>)/g, (match) => {
