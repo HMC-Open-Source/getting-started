@@ -157,97 +157,263 @@ function toggleCheck(li) {
 }
 
 /* ── File Explorer Simulation ────────────────────────────────── */
-let chaosLevel = 0;
-const MAX_CHAOS = 5;
+/*
+  Story-driven step-through. Each step has:
+    - narrative: the caption shown above the file tree
+    - folders: array of { name, files: [{ name, isNew }] }
+  Files marked isNew are highlighted in red as the new additions.
+  Files are displayed in alphabetical order within each folder.
+*/
 
-const baseFiles = [
-  { name: '📁 my-project', type: 'folder' },
-  { name: 'index.html', type: 'file' },
-  { name: 'style.css', type: 'file' },
-  { name: 'script.js', type: 'file' },
+const feSteps = [
+  {
+    narrative: "Here's your project folder with a working version of your project.",
+    folders: [
+      {
+        name: 'my-project',
+        files: [
+          { name: 'index.html' },
+          { name: 'script.js' },
+          { name: 'style.css' },
+        ]
+      }
+    ]
+  },
+  {
+    narrative: "You want to do some experimental changes, but you don't want to lose your working version just yet — so you save a copy of index.html.",
+    folders: [
+      {
+        name: 'my-project',
+        files: [
+          { name: 'index.html' },
+          { name: 'index_v2.html', isNew: true },
+          { name: 'script.js' },
+          { name: 'style.css' },
+        ]
+      }
+    ]
+  },
+  {
+    narrative: "Your experimental change also requires tweaks to script.js, so you save a copy of that too.",
+    folders: [
+      {
+        name: 'my-project',
+        files: [
+          { name: 'index.html' },
+          { name: 'index_v2.html' },
+          { name: 'script.js' },
+          { name: 'script_v2.js', isNew: true },
+          { name: 'style.css' },
+        ]
+      }
+    ]
+  },
+  {
+    narrative: "This is getting cumbersome — index_v2.html and script_v2.js reference each other, but so do the originals. You decide to copy the v2 files into a separate folder so they stay together.",
+    folders: [
+      {
+        name: 'my-project',
+        files: [
+          { name: 'index.html' },
+          { name: 'index_v2.html' },
+          { name: 'script.js' },
+          { name: 'script_v2.js' },
+          { name: 'style.css' },
+        ]
+      },
+      {
+        name: 'my-project_experimental',
+        isNew: true,
+        files: [
+          { name: 'index.html', isNew: true },
+          { name: 'script.js', isNew: true },
+          { name: 'style.css', isNew: true },
+        ]
+      }
+    ]
+  },
+  {
+    narrative: "A week later, the experiment worked! But now you also fixed a bug in the original. Which folder has the fix? Did you copy it to the other one? You're not sure anymore.",
+    folders: [
+      {
+        name: 'my-project',
+        files: [
+          { name: 'index.html' },
+          { name: 'index_FINAL.html', isNew: true },
+          { name: 'index_v2.html' },
+          { name: 'script.js' },
+          { name: 'script_v2.js' },
+          { name: 'style.css' },
+        ]
+      },
+      {
+        name: 'my-project_experimental',
+        files: [
+          { name: 'index.html' },
+          { name: 'script.js' },
+          { name: 'style.css' },
+        ]
+      },
+      {
+        name: 'my-project_FINAL',
+        isNew: true,
+        files: [
+          { name: 'index.html', isNew: true },
+          { name: 'script.js', isNew: true },
+          { name: 'style.css', isNew: true },
+        ]
+      }
+    ]
+  },
+  {
+    narrative: "This is the problem git solves. Instead of copying folders, git tracks every change as a commit inside one clean project folder. You always know what changed, when, and why.",
+    folders: [
+      {
+        name: 'my-project',
+        files: [
+          { name: '.git  ← history lives here', isGit: true },
+          { name: 'index.html' },
+          { name: 'script.js' },
+          { name: 'style.css' },
+        ]
+      }
+    ],
+    isSolution: true,
+    // The "before" state to show on the left side for comparison
+    beforeFolders: [
+      {
+        name: 'my-project',
+        files: [
+          { name: 'index.html' },
+          { name: 'index_FINAL.html' },
+          { name: 'index_v2.html' },
+          { name: 'script.js' },
+          { name: 'script_v2.js' },
+          { name: 'style.css' },
+        ]
+      },
+      {
+        name: 'my-project_experimental',
+        files: [
+          { name: 'index.html' },
+          { name: 'script.js' },
+          { name: 'style.css' },
+        ]
+      },
+      {
+        name: 'my-project_FINAL',
+        files: [
+          { name: 'index.html' },
+          { name: 'script.js' },
+          { name: 'style.css' },
+        ]
+      }
+    ]
+  }
 ];
 
-const chaosVersions = [
-  { name: 'index_v2.html', type: 'file-confused' },
-  { name: 'index_FINAL.html', type: 'file-confused' },
-  { name: 'index_FINAL_v2.html', type: 'file-confused' },
-  { name: '📁 my-project-backup', type: 'folder' },
-  { name: 'index_ACTUALLY_FINAL.html', type: 'file-confused' },
-  { name: '📁 my-project-OLD', type: 'folder' },
-  { name: 'index_for_real_this_time.html', type: 'file-confused' },
-  { name: 'style_new.css', type: 'file-confused' },
-  { name: '📁 my-project-2024-backup', type: 'folder' },
-  { name: 'index_FINAL_FINAL.html', type: 'file-confused' },
-];
+let feCurrentStep = 0;
 
-let extraFiles = [];
+function buildFolderEl(folder, isSolution) {
+  const folderEl = document.createElement('div');
+  folderEl.className = 'fe-folder' +
+    (folder.isNew ? ' fe-folder-new' : '') +
+    (isSolution ? ' fe-folder-solution' : '');
 
-function renderFileTree() {
-  const tree = document.getElementById('fe-tree');
-  if (!tree) return;
-  tree.innerHTML = '';
+  const folderName = document.createElement('div');
+  folderName.className = 'fe-folder-name';
+  folderName.textContent = '📁 ' + folder.name;
+  folderEl.appendChild(folderName);
 
-  const allFiles = [...baseFiles, ...extraFiles];
-  allFiles.forEach(f => {
+  const ul = document.createElement('ul');
+  ul.className = 'fe-folder-tree';
+  folder.files.forEach(file => {
     const li = document.createElement('li');
-    li.className = f.type;
-    li.textContent = (f.type === 'folder' ? '' : '  ') + f.name;
-    tree.appendChild(li);
+    li.className = file.isGit ? 'file-new' : (file.isNew ? 'file-new-red' : 'file');
+    li.textContent = file.name;
+    ul.appendChild(li);
   });
+  folderEl.appendChild(ul);
+  return folderEl;
 }
 
-function feAddVersion() {
-  if (chaosLevel >= MAX_CHAOS) return;
-  const next = chaosVersions[extraFiles.length];
-  if (next) extraFiles.push(next);
-  chaosLevel++;
-  updateChaos();
-  renderFileTree();
-}
+function renderFileExplorer() {
+  const narrative = document.getElementById('fe-narrative');
+  const treeWrap  = document.getElementById('fe-tree-wrap');
+  const nextBtn   = document.getElementById('fe-next-btn');
+  const stepLabel = document.getElementById('fe-step-label');
+  if (!narrative || !treeWrap) return;
 
-function updateChaos() {
-  const bar = document.getElementById('fe-chaos-fill');
-  const meter = document.getElementById('fe-chaos-label');
-  const msg = document.getElementById('fe-message');
-  const addBtn = document.getElementById('fe-add-btn');
-  const solveBtn = document.getElementById('fe-solve-btn');
+  const step  = feSteps[feCurrentStep];
+  const total = feSteps.length;
 
-  if (bar) bar.style.width = (chaosLevel / MAX_CHAOS * 100) + '%';
-  if (meter) meter.textContent = 'Confusion level: ' + chaosLevel + '/' + MAX_CHAOS;
+  narrative.textContent = step.narrative;
+  if (stepLabel) stepLabel.textContent = (feCurrentStep + 1) + ' / ' + total;
 
-  if (chaosLevel >= MAX_CHAOS) {
-    if (addBtn) addBtn.disabled = true;
-    if (msg) {
-      msg.textContent = '😵 Which file is the "real" one? You\'ve lost track. This is the problem git solves.';
-      msg.className = 'fe-message chaos show';
-    }
-    if (solveBtn) solveBtn.disabled = false;
+  treeWrap.innerHTML = '';
+
+  if (step.isSolution && step.beforeFolders) {
+    // Side-by-side layout for the final step
+    const compareWrap = document.createElement('div');
+    compareWrap.className = 'fe-compare';
+
+    // Left: before
+    const beforeCol = document.createElement('div');
+    beforeCol.className = 'fe-compare-col fe-compare-before';
+    const beforeLabel = document.createElement('div');
+    beforeLabel.className = 'fe-compare-label';
+    beforeLabel.textContent = 'Without git';
+    beforeCol.appendChild(beforeLabel);
+    step.beforeFolders.forEach(folder => {
+      beforeCol.appendChild(buildFolderEl(folder, false));
+    });
+
+    // Divider
+    const divider = document.createElement('div');
+    divider.className = 'fe-compare-divider';
+    divider.textContent = '→';
+
+    // Right: after
+    const afterCol = document.createElement('div');
+    afterCol.className = 'fe-compare-col fe-compare-after';
+    const afterLabel = document.createElement('div');
+    afterLabel.className = 'fe-compare-label';
+    afterLabel.textContent = 'With git';
+    afterCol.appendChild(afterLabel);
+    step.folders.forEach(folder => {
+      afterCol.appendChild(buildFolderEl(folder, true));
+    });
+
+    compareWrap.appendChild(beforeCol);
+    compareWrap.appendChild(divider);
+    compareWrap.appendChild(afterCol);
+    treeWrap.appendChild(compareWrap);
+  } else {
+    // Normal single-column layout
+    step.folders.forEach(folder => {
+      treeWrap.appendChild(buildFolderEl(folder, false));
+    });
+  }
+
+  // Update button
+  if (nextBtn) {
+    const isLast = feCurrentStep >= total - 1;
+    nextBtn.textContent = isLast ? '↺ Start over' : 'Next →';
+    nextBtn.className   = 'fe-btn' + (step.isSolution ? ' primary' : '');
   }
 }
 
-function feSolve() {
-  const msg = document.getElementById('fe-message');
-  const solveBtn = document.getElementById('fe-solve-btn');
-  if (msg) {
-    msg.textContent = '✓ With git, you keep ONE clean project folder. Every change is tracked as a commit — no more copies needed.';
-    msg.className = 'fe-message solved show';
-  }
-  if (solveBtn) solveBtn.disabled = true;
-
-  // replace chaos files with a clean git indicator
-  extraFiles = [{ name: '.git  ← git tracks history here', type: 'file-new' }];
-  renderFileTree();
+function feNext() {
+  const total = feSteps.length;
+  feCurrentStep = (feCurrentStep + 1) % total;
+  renderFileExplorer();
 }
 
 function initFileExplorer() {
-  renderFileTree();
-  const addBtn = document.getElementById('fe-add-btn');
-  const solveBtn = document.getElementById('fe-solve-btn');
-  if (addBtn) addBtn.addEventListener('click', feAddVersion);
-  if (solveBtn) {
-    solveBtn.disabled = true;
-    solveBtn.addEventListener('click', feSolve);
-  }
+  feCurrentStep = 0;
+  renderFileExplorer();
+  const nextBtn = document.getElementById('fe-next-btn');
+  if (nextBtn) nextBtn.addEventListener('click', feNext);
 }
 
 /* ── Markdown Loader ─────────────────────────────────────────── */
@@ -371,25 +537,18 @@ function getFileExplorerHTML() {
   return `
   <div id="file-explorer-section">
     <div class="fe-header">
-      <h2>📁 The "Final" File Problem</h2>
-      <p>Click "Save a new version" and see how quickly things spiral.</p>
+      <h2>📁 The Version Control Problem</h2>
+      <p>Click through to see how file management gets out of hand without git.</p>
     </div>
     <div class="fe-body">
-      <div class="fe-scenario">
-        <strong>Scenario:</strong> You just finished your project. It works! But now you want to experiment with a new feature. You don't want to break what you have, so you… make a copy.
-      </div>
+      <div class="fe-narrative" id="fe-narrative"></div>
       <div class="fe-workspace">
-        <ul class="fe-folder-tree" id="fe-tree"></ul>
+        <div id="fe-tree-wrap"></div>
       </div>
       <div class="fe-controls">
-        <button class="fe-btn" id="fe-add-btn">📄 Save a new version</button>
-        <button class="fe-btn primary" id="fe-solve-btn">✓ Use git instead</button>
+        <button class="fe-btn" id="fe-next-btn">Next →</button>
+        <span class="fe-step-label" id="fe-step-label">1 / 6</span>
       </div>
-      <div class="fe-chaos-meter">
-        <span id="fe-chaos-label">Confusion level: 0/5</span>
-        <div class="fe-chaos-bar-track"><div class="fe-chaos-bar-fill" id="fe-chaos-fill"></div></div>
-      </div>
-      <div class="fe-message" id="fe-message"></div>
     </div>
   </div>`;
 }
@@ -399,20 +558,15 @@ document.addEventListener('DOMContentLoaded', () => {
   restoreProgress();
   updateProgress();
 
-  // Initialize file explorer if it exists in static HTML
-  if (document.getElementById('fe-tree')) {
-    initFileExplorer();
-  }
-
-  // Load any markdown sections
+  // Load markdown sections first, then init anything that was injected
   loadMarkdownSections().then(() => {
-    // Re-init file explorer if it was injected via markdown
-    if (document.getElementById('fe-tree') && !document.getElementById('fe-tree').dataset.initialized) {
-      document.getElementById('fe-tree').dataset.initialized = 'true';
+    // Init file explorer after markdown injection completes
+    const nextBtn = document.getElementById('fe-next-btn');
+    if (nextBtn && !nextBtn.dataset.initialized) {
+      nextBtn.dataset.initialized = 'true';
       initFileExplorer();
     }
+    initTooltips();
     updateProgress();
   });
-
-  initTooltips();
 });
