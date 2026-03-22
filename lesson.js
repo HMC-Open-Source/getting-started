@@ -180,7 +180,7 @@ const feSteps = [
     ]
   },
   {
-    narrative: "You want to do some experimental changes, but you don't want to lose your working version just yet — so you save a copy of index.html.",
+    narrative: "You want to do some experimental changes, but you don't want to lose your working version just yet — so you create a new version called index_v2.html.",
     folders: [
       {
         name: 'my-project',
@@ -194,7 +194,7 @@ const feSteps = [
     ]
   },
   {
-    narrative: "Your experimental change also requires tweaks to script.js, so you save a copy of that too.",
+    narrative: "Your experimental change also requires tweaks to script.js, so you create a new version of it called script_v2.js.",
     folders: [
       {
         name: 'my-project',
@@ -209,7 +209,7 @@ const feSteps = [
     ]
   },
   {
-    narrative: "This is getting cumbersome — index_v2.html and script_v2.js reference each other, but so do the originals. You decide to copy the v2 files into a separate folder so they stay together.",
+    narrative: "However, you realize that index_v2.html and script_v2.js reference each other, but so do the originals. You decide to copy the v2 files into a separate folder so they stay together.",
     folders: [
       {
         name: 'my-project',
@@ -233,7 +233,7 @@ const feSteps = [
     ]
   },
   {
-    narrative: "A week later, the experiment worked! But now you also fixed a bug in the original. Which folder has the fix? Did you copy it to the other one? You're not sure anymore.",
+    narrative: "A week later, the experimental feature worked! But now you also fixed a bug in the original. Which folder has the fix? Did you copy it to the other one? You're not sure anymore.",
     folders: [
       {
         name: 'my-project',
