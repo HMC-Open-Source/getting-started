@@ -1,14 +1,22 @@
-Git solves the "project_final_ACTUALLY_FINAL" problem by creating a built-in history of changes. Instead of copying folders, every deliberate save is a **commit**, or a snapshot you can always return to.
+Git solves the "project_final_ACTUALLY_FINAL" problem by creating a built-in history of changes. 
+Instead of copying folders, git records all the changes you make to the project at specific 
+points that you choose.
 
-A repository (repo) is simply a project folder that git is tracking. When you run `git init` or clone a repo, git starts watching that folder and recording its history.
+**Git** is an open-source distributed version control system created by Linux Torvalds in 2005. 
+When installed, you can run git completely on its own to version control a project. **GitHub**, 
+on the other hand, is a web-based platform that allows for collaboration.
 
-**COMMITS** are deliberate snapshots of your project, like save points in a video game. But git doesn't save a full copy of every file at every snapshot. Instead, it records the diff, which is the difference between the last snapshot and the current one.
+This lesson will focus on how to use git with GitHub. If you wanted to use git on your own, you
+just wouldn't use push and pull commands.
 
-Git keeps a history of changes through your commits:
+The core of git lies in **commits**.
 
-- You can always go back to any snapshot
-- You can see exactly what changed between snapshots and who changed it
-- You can experiment freely knowing nothing is permanently lost
+**COMMITS** are like deliberate snapshots of your project, like save points in a video game. For
+now, you only need to know that commits keep a history of you changes and allows you to: 
+
+- Go back to any snapshot
+- See exactly what changed between snapshots and who changed it
+- Experiment freely knowing nothing is permanently lost
 
 [QUIZ id="quiz-1a" hint="Commits are the bread and butter of git"]
 Q: What are commits? 
@@ -16,4 +24,10 @@ Q: What are commits?
 - Commits records the diffs
 - Commits are what make version control possible
 * All of the above!
+[/QUIZ]
+
+[QUIZ id="quiz-1b"]
+Q: True or False? git and GitHub are not the same.
+* True
+- False
 [/QUIZ]
