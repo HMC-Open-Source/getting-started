@@ -39,8 +39,6 @@ const SECTIONS = [
     number: 2,
     title: 'Commit messages & history',
     src: 'sections/02-commits.md',
-    locked: true,
-    requires: 'quiz-1a quiz-1b',
   },
   {
     id: 'section-process',
@@ -572,8 +570,7 @@ function initFileExplorer() {
   feCurrentStep = 0;
   renderFileExplorer();
   const btn = document.getElementById('fe-next-btn');
-  if (btn && !btn.dataset.initialized) {
-    btn.dataset.initialized = 'true';
+  if (btn) {
     btn.addEventListener('click', feNext);
   }
 }
@@ -926,6 +923,7 @@ async function buildLesson() {
   const root = document.getElementById('lesson-root');
   if (!root) return;
 
+  // Build all shells first so DOM structure exists
   const shells = SECTIONS.map(section => {
     const shell = buildSectionShell(section);
     root.appendChild(shell);
@@ -934,15 +932,32 @@ async function buildLesson() {
 
   restoreProgress();
 
-  await Promise.all(
-    shells.map(({ section, shell }) => loadSection(section, shell))
+  // Load the file explorer section first so we can init it
+  // before the rest of the sections load in parallel
+  const explorerEntry = shells.find(
+    ({ section }) => section.bare
+  );
+  const restEntries = shells.filter(
+    ({ section }) => !section.bare
   );
 
-  const feBtn = document.getElementById('fe-next-btn');
-  if (feBtn && !feBtn.dataset.initialized) {
-    feBtn.dataset.initialized = 'true';
-    initFileExplorer();
+  if (explorerEntry) {
+    await loadSection(
+      explorerEntry.section,
+      explorerEntry.shell
+    );
+    const feBtn = document.getElementById('fe-next-btn');
+    if (feBtn) {
+      initFileExplorer();
+    }
   }
+
+  // Load all remaining sections in parallel
+  await Promise.all(
+    restEntries.map(({ section, shell }) =>
+      loadSection(section, shell)
+    )
+  );
 
   initTooltips();
   updateProgress();
