@@ -2,7 +2,7 @@ Follow these steps once per machine to get git connected to GitHub.
 
 **1. Create a GitHub account** at github.com if you haven't already.
 
-**2. Open a terminal and install git.** Installation varies by OS — visit git-scm.com for instructions.
+**2. Open a terminal and install git.** Installation varies by OS — visit [git-scm.com](https://git-scm.com) for instructions.
 
 **3. Set your identity.** Use the same email as your GitHub account — this connects your commits to your profile.
 
@@ -36,6 +36,10 @@ ssh -T git@github.com
 ```
 
 You should see: *Hi username! You've successfully authenticated, but GitHub does not provide shell access.* That message is normal — it means it worked.
+
+[CALLOUT type="tip"]
+SSH is preferred over HTTPS because once it's set up, you never need to enter credentials again. When cloning, always choose the **SSH** tab on GitHub's Code button, not HTTPS.
+[/CALLOUT]
 
 [QUIZ id="quiz-1" hint="Think about which method avoids managing passwords or tokens."]
 Q: Why do we use SSH to authenticate with GitHub instead of HTTPS?

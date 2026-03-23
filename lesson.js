@@ -1,102 +1,237 @@
-/* ============================================================
+/* =============================================================
    GET IN THE GITHUB WORKFLOW — lesson.js
-   Interactive functionality: progress bar, tooltips,
-   accordions, quizzes, section locking, checklists,
-   file explorer simulation, markdown loader
-   ============================================================ */
+   =============================================================
+   Architecture:
+   - Sections defined in SECTIONS manifest below
+   - Each section points to a .md file in /sections/
+   - Markdown parser handles all content + components:
+       [INTERACTIVE: file-explorer]
+       [QUIZ id="..." hint="..."] ... [/QUIZ]
+       [ACCORDION title="..."] ... [/ACCORDION]
+       [CALLOUT type="tip|note|warning|success"] ... [/CALLOUT]
+       [PRACTICE title="..."] ... [/PRACTICE]
+       [RESOURCES] ... [/RESOURCES]
+       Standard markdown: **bold**, `code`, headings,
+       lists, tables, images
+   ============================================================= */
 
 const QUIZ_VERSION = 'git-lesson-v1';
 
-/* ── Progress Bar ────────────────────────────────────────────── */
+/* =============================================================
+   SECTION MANIFEST
+   Defines all sections, source files, locking, and IDs.
+   Edit this to add/remove/reorder sections.
+   ============================================================= */
+const SECTIONS = [
+  {
+    id: 'section-explorer',
+    src: 'sections/00-file-explorer.md',
+    bare: true, // no header or number — raw content only
+  },
+  {
+    id: 'section-why-git',
+    number: 1,
+    title: 'Why use git?',
+    src: 'sections/01-why-git.md',
+  },
+  {
+    id: 'section-commits',
+    number: 2,
+    title: 'Commit messages & history',
+    src: 'sections/02-commits.md',
+    locked: true,
+    requires: 'quiz-1a quiz-1b',
+  },
+  {
+    id: 'section-process',
+    number: 3,
+    title: 'The Git Process',
+    src: 'sections/03-git-process.md',
+  },
+  {
+    id: 'section-diagram',
+    number: 4,
+    title: 'The Workflow at a Glance',
+    src: 'sections/04-diagram.md',
+  },
+  {
+    id: 'section-setup',
+    number: 5,
+    title: 'Setting Up Git',
+    src: 'sections/05-setup.md',
+  },
+  {
+    id: 'section-init',
+    number: 6,
+    title: 'Initializing Git for Your Own Project',
+    src: 'sections/06-init.md',
+    locked: true,
+    requires: 'quiz-1',
+  },
+  {
+    id: 'section-push',
+    number: 7,
+    title: 'A Note About git push & Branches',
+    src: 'sections/07-push-branches.md',
+    locked: true,
+    requires: 'quiz-2',
+  },
+  {
+    id: 'section-checkout',
+    number: 8,
+    title: 'New Ways to "checkout"',
+    src: 'sections/08-checkout.md',
+    locked: true,
+    requires: 'quiz-2',
+  },
+  {
+    id: 'section-internal',
+    number: 9,
+    title: 'Internal Contributor Workflow',
+    src: 'sections/09-internal.md',
+    locked: true,
+    requires: 'quiz-2',
+  },
+  {
+    id: 'section-external',
+    number: 10,
+    title: 'External Contributor Workflow',
+    src: 'sections/10-external.md',
+    locked: true,
+    requires: 'quiz-3',
+  },
+  {
+    id: 'section-pr',
+    number: 11,
+    title: 'PR Etiquette',
+    src: 'sections/11-pr-etiquette.md',
+    locked: true,
+    requires: 'quiz-3',
+  },
+  {
+    id: 'section-conflicts',
+    number: 12,
+    title: 'Merge Conflicts',
+    src: 'sections/12-merge-conflicts.md',
+    locked: true,
+    requires: 'quiz-3',
+  },
+  {
+    id: 'section-further',
+    number: 13,
+    title: "What's Next — Limitations & Further Learning",
+    src: 'sections/13-further-learning.md',
+    locked: true,
+    requires: 'quiz-3',
+  },
+];
+
+/* =============================================================
+   PROGRESS BAR
+   ============================================================= */
 function updateProgress() {
   const fill  = document.getElementById('progress-bar-fill');
   const label = document.getElementById('progress-label');
   if (!fill || !label) return;
-  const scrollTop    = window.scrollY;
-  const docHeight    = document.body.scrollHeight - window.innerHeight;
-  const pct          = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
-  fill.style.width   = pct + '%';
-  label.textContent  = pct + '% complete';
+  const scrollTop = window.scrollY;
+  const docHeight = document.body.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0
+    ? Math.round((scrollTop / docHeight) * 100)
+    : 0;
+  fill.style.width  = pct + '%';
+  label.textContent = pct + '% complete';
 }
 window.addEventListener('scroll', updateProgress, { passive: true });
 
-/* ── Tooltips ────────────────────────────────────────────────── */
-const floatingTip = document.getElementById('floating-tooltip');
-
+/* =============================================================
+   TOOLTIPS
+   ============================================================= */
 function initTooltips() {
+  const tip = document.getElementById('floating-tooltip');
+  if (!tip) return;
+
   document.querySelectorAll('.term').forEach(term => {
-    const tipContent = term.querySelector('.term-tooltip');
-    if (!tipContent) return;
+    const content = term.querySelector('.term-tooltip');
+    if (!content) return;
 
-    function showTip(e) {
-      floatingTip.textContent = tipContent.textContent.trim();
-      floatingTip.classList.add('visible');
-      moveTip(e);
-    }
-    function moveTip(e) {
-      const x = e.clientX + 14;
-      const y = e.clientY + 14;
+    const show = e => {
+      tip.textContent = content.textContent.trim();
+      tip.classList.add('visible');
+      move(e);
+    };
+    const move = e => {
+      const x    = e.clientX + 14;
+      const y    = e.clientY + 14;
       const tipW = 280;
-      const left = x + tipW > window.innerWidth ? e.clientX - tipW - 8 : x;
-      floatingTip.style.left = left + 'px';
-      floatingTip.style.top  = y + 'px';
-    }
-    function hideTip() { floatingTip.classList.remove('visible'); }
+      const left = x + tipW > window.innerWidth
+        ? e.clientX - tipW - 8
+        : x;
+      tip.style.left = left + 'px';
+      tip.style.top  = y + 'px';
+    };
+    const hide = () => tip.classList.remove('visible');
 
-    term.addEventListener('mouseenter', showTip);
-    term.addEventListener('mousemove', moveTip);
-    term.addEventListener('mouseleave', hideTip);
-    term.addEventListener('focus', showTip);
-    term.addEventListener('blur', hideTip);
+    term.addEventListener('mouseenter', show);
+    term.addEventListener('mousemove',  move);
+    term.addEventListener('mouseleave', hide);
+    term.addEventListener('focus',      show);
+    term.addEventListener('blur',       hide);
   });
 }
 
-/* ── Accordions ──────────────────────────────────────────────── */
+/* =============================================================
+   ACCORDIONS
+   ============================================================= */
 function toggleAccordion(btn) {
   const body = btn.nextElementSibling;
-  const isOpen = btn.classList.contains('open');
-  btn.classList.toggle('open', !isOpen);
-  body.classList.toggle('open', !isOpen);
+  const open = btn.classList.toggle('open');
+  body.classList.toggle('open', open);
 }
 
-/* ── Quizzes & Section Locking ───────────────────────────────── */
+/* =============================================================
+   QUIZZES & SECTION LOCKING
+   ============================================================= */
 const completedQuizzes = new Set();
 
 function checkAnswer(btn, isCorrect) {
-  const quizBlock = btn.closest('.quiz-block');
-  const feedback  = quizBlock.querySelector('.quiz-feedback');
-  const allBtns   = quizBlock.querySelectorAll('button');
-  const attempts  = parseInt(quizBlock.dataset.attempts || '0') + 1;
-  quizBlock.dataset.attempts = attempts;
+  const block    = btn.closest('.quiz-block');
+  const feedback = block.querySelector('.quiz-feedback');
+  const allBtns  = block.querySelectorAll('button');
+  const attempts = parseInt(block.dataset.attempts || '0') + 1;
+  block.dataset.attempts = attempts;
 
   if (isCorrect) {
     btn.classList.add('correct');
     allBtns.forEach(b => { b.disabled = true; });
     feedback.textContent = '✓ Correct! Moving on…';
-    feedback.className = 'quiz-feedback correct';
-    markQuizComplete(quizBlock.id);
+    feedback.className   = 'quiz-feedback correct';
+    markQuizComplete(block.id);
+    return;
+  }
+
+  btn.classList.add('wrong');
+  btn.disabled = true;
+
+  if (attempts === 1) {
+    feedback.textContent =
+      'Not quite — double check your answer and try again.';
+    feedback.className = 'quiz-feedback wrong';
+  } else if (attempts === 2) {
+    const hint = block.dataset.hint
+      || 'Think carefully about each option.';
+    feedback.textContent = 'Hint: ' + hint;
+    feedback.className   = 'quiz-feedback wrong';
   } else {
-    btn.classList.add('wrong');
-    btn.disabled = true;
-    if (attempts === 1) {
-      feedback.textContent = 'Not quite — double check your answer and try again.';
-      feedback.className = 'quiz-feedback wrong';
-    } else if (attempts === 2) {
-      const hint = quizBlock.dataset.hint || 'Think carefully about each option.';
-      feedback.textContent = 'Hint: ' + hint;
-      feedback.className = 'quiz-feedback wrong';
-    } else {
-      // reveal correct after 3 attempts
-      allBtns.forEach(b => {
-        if (b.dataset.correct === 'true') {
-          b.classList.remove('wrong');
-          b.classList.add('correct');
-          b.disabled = false;
-        }
-      });
-      feedback.textContent = 'Here\'s the correct answer — review it before moving on.';
-      feedback.className = 'quiz-feedback wrong';
-    }
+    allBtns.forEach(b => {
+      if (b.dataset.correct === 'true') {
+        b.classList.remove('wrong');
+        b.classList.add('correct');
+        b.disabled = false;
+      }
+    });
+    feedback.textContent =
+      "Here's the correct answer — review it before moving on.";
+    feedback.className = 'quiz-feedback wrong';
   }
 }
 
@@ -107,234 +242,258 @@ function markQuizComplete(quizId) {
 }
 
 function unlockSections() {
-  document.querySelectorAll('.step-section.locked').forEach(section => {
-    const required = (section.dataset.requires || '').trim().split(/\s+/).filter(Boolean);
-    if (required.length === 0) return;
-    const allDone = required.every(id => completedQuizzes.has(id));
-    if (allDone) {
-      section.classList.remove('locked');
+  document.querySelectorAll('.step-section.locked').forEach(sec => {
+    const req = (sec.dataset.requires || '')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+    if (req.length && req.every(id => completedQuizzes.has(id))) {
+      sec.classList.remove('locked');
     }
   });
 }
 
-/* ── localStorage Persistence ────────────────────────────────── */
+/* =============================================================
+   LOCALSTORAGE
+   ============================================================= */
 function saveProgress() {
   try {
-    localStorage.setItem(QUIZ_VERSION, JSON.stringify([...completedQuizzes]));
-  } catch(e) {}
+    localStorage.setItem(
+      QUIZ_VERSION,
+      JSON.stringify([...completedQuizzes])
+    );
+  } catch (e) {}
 }
 
 function restoreProgress() {
   try {
     const saved = localStorage.getItem(QUIZ_VERSION);
     if (!saved) return;
-    const ids = JSON.parse(saved);
-    ids.forEach(id => {
+    JSON.parse(saved).forEach(id => {
       completedQuizzes.add(id);
-      const quizBlock = document.getElementById(id);
-      if (!quizBlock) return;
-      const correctBtn = quizBlock.querySelector('[data-correct="true"]');
-      if (correctBtn) {
-        correctBtn.classList.add('correct');
-        quizBlock.querySelectorAll('button').forEach(b => b.disabled = true);
-        const feedback = quizBlock.querySelector('.quiz-feedback');
-        if (feedback) { feedback.textContent = '✓ Already answered correctly.'; feedback.className = 'quiz-feedback correct'; }
+      const block = document.getElementById(id);
+      if (!block) return;
+      const correct = block.querySelector('[data-correct="true"]');
+      if (correct) {
+        correct.classList.add('correct');
+        block.querySelectorAll('button').forEach(b => {
+          b.disabled = true;
+        });
+        const fb = block.querySelector('.quiz-feedback');
+        if (fb) {
+          fb.textContent = '✓ Already answered correctly.';
+          fb.className   = 'quiz-feedback correct';
+        }
       }
     });
     unlockSections();
-  } catch(e) {}
+  } catch (e) {}
 }
 
 function resetProgress() {
-  if (!confirm('Reset all your progress? This cannot be undone.')) return;
-  try { localStorage.removeItem(QUIZ_VERSION); } catch(e) {}
+  if (!confirm('Reset all your progress? This cannot be undone.')) {
+    return;
+  }
+  try { localStorage.removeItem(QUIZ_VERSION); } catch (e) {}
   location.reload();
 }
 
-/* ── Checklists ──────────────────────────────────────────────── */
-function toggleCheck(li) {
-  li.classList.toggle('checked');
-}
+/* =============================================================
+   CHECKLISTS
+   ============================================================= */
+function toggleCheck(li) { li.classList.toggle('checked'); }
 
-/* ── File Explorer Simulation ────────────────────────────────── */
-/*
-  Story-driven step-through. Each step has:
-    - narrative: the caption shown above the file tree
-    - folders: array of { name, files: [{ name, isNew }] }
-  Files marked isNew are highlighted in red as the new additions.
-  Files are displayed in alphabetical order within each folder.
-*/
-
+/* =============================================================
+   FILE EXPLORER SIMULATION
+   ============================================================= */
 const feSteps = [
   {
-    narrative: "Here's your project folder with a working version of your project.",
+    narrative:
+      "Here's your project folder with a working version of " +
+      "your project.",
     folders: [
       {
         name: 'my-project',
         files: [
           { name: 'index.html' },
-          { name: 'script.js' },
-          { name: 'style.css' },
-        ]
-      }
-    ]
+          { name: 'script.js'  },
+          { name: 'style.css'  },
+        ],
+      },
+    ],
   },
   {
-    narrative: "You want to do some experimental changes, but you don't want to lose your working version just yet — so you create a new version called index_v2.html.",
+    narrative:
+      "You want to do some experimental changes, but you don't " +
+      "want to lose your working version just yet — so you save " +
+      "a copy of index.html.",
     folders: [
       {
         name: 'my-project',
         files: [
           { name: 'index.html' },
           { name: 'index_v2.html', isNew: true },
-          { name: 'script.js' },
-          { name: 'style.css' },
-        ]
-      }
-    ]
+          { name: 'script.js'  },
+          { name: 'style.css'  },
+        ],
+      },
+    ],
   },
   {
-    narrative: "Your experimental change also requires tweaks to script.js, so you create a new version of it called script_v2.js.",
+    narrative:
+      "Your experimental change also requires tweaks to script.js, " +
+      "so you save a copy of that too.",
     folders: [
       {
         name: 'my-project',
         files: [
-          { name: 'index.html' },
-          { name: 'index_v2.html' },
-          { name: 'script.js' },
+          { name: 'index.html'              },
+          { name: 'index_v2.html'           },
+          { name: 'script.js'               },
           { name: 'script_v2.js', isNew: true },
-          { name: 'style.css' },
-        ]
-      }
-    ]
+          { name: 'style.css'               },
+        ],
+      },
+    ],
   },
   {
-    narrative: "However, you realize that index_v2.html and script_v2.js reference each other, but so do the originals. You decide to copy the v2 files into a separate folder so they stay together.",
+    narrative:
+      "This is getting cumbersome — index_v2.html and script_v2.js " +
+      "reference each other, but so do the originals. You copy the " +
+      "v2 files into a separate folder so they stay together.",
     folders: [
       {
         name: 'my-project',
         files: [
-          { name: 'index.html' },
+          { name: 'index.html'    },
           { name: 'index_v2.html' },
-          { name: 'script.js' },
-          { name: 'script_v2.js' },
-          { name: 'style.css' },
-        ]
+          { name: 'script.js'     },
+          { name: 'script_v2.js'  },
+          { name: 'style.css'     },
+        ],
       },
       {
         name: 'my-project_experimental',
         isNew: true,
         files: [
           { name: 'index.html', isNew: true },
-          { name: 'script.js', isNew: true },
-          { name: 'style.css', isNew: true },
-        ]
-      }
-    ]
+          { name: 'script.js',  isNew: true },
+          { name: 'style.css',  isNew: true },
+        ],
+      },
+    ],
   },
   {
-    narrative: "A week later, the experimental feature worked! But now you also fixed a bug in the original. Which folder has the fix? Did you copy it to the other one? You're not sure anymore.",
+    narrative:
+      "A week later, the experiment worked! But you also fixed a " +
+      "bug in the original. Which folder has the fix? Did you copy " +
+      "it to the other one? You're not sure anymore.",
     folders: [
       {
         name: 'my-project',
         files: [
-          { name: 'index.html' },
+          { name: 'index.html'                  },
           { name: 'index_FINAL.html', isNew: true },
-          { name: 'index_v2.html' },
-          { name: 'script.js' },
-          { name: 'script_v2.js' },
-          { name: 'style.css' },
-        ]
+          { name: 'index_v2.html'               },
+          { name: 'script.js'                   },
+          { name: 'script_v2.js'                },
+          { name: 'style.css'                   },
+        ],
       },
       {
         name: 'my-project_experimental',
         files: [
           { name: 'index.html' },
-          { name: 'script.js' },
-          { name: 'style.css' },
-        ]
+          { name: 'script.js'  },
+          { name: 'style.css'  },
+        ],
       },
       {
         name: 'my-project_FINAL',
         isNew: true,
         files: [
           { name: 'index.html', isNew: true },
-          { name: 'script.js', isNew: true },
-          { name: 'style.css', isNew: true },
-        ]
-      }
-    ]
+          { name: 'script.js',  isNew: true },
+          { name: 'style.css',  isNew: true },
+        ],
+      },
+    ],
   },
   {
-    narrative: "This is the problem git solves. Instead of copying folders, git tracks every change as a commit inside one clean project folder. You always know what changed, when, and why.",
+    narrative:
+      "This is the problem git solves. Instead of copying folders, " +
+      "git tracks every change as a commit inside one clean project " +
+      "folder. You always know what changed, when, and why.",
+    isSolution: true,
     folders: [
       {
         name: 'my-project',
         files: [
           { name: '.git  ← history lives here', isGit: true },
           { name: 'index.html' },
-          { name: 'script.js' },
-          { name: 'style.css' },
-        ]
-      }
+          { name: 'script.js'  },
+          { name: 'style.css'  },
+        ],
+      },
     ],
-    isSolution: true,
-    // The "before" state to show on the left side for comparison
     beforeFolders: [
       {
         name: 'my-project',
         files: [
-          { name: 'index.html' },
+          { name: 'index.html'       },
           { name: 'index_FINAL.html' },
-          { name: 'index_v2.html' },
-          { name: 'script.js' },
-          { name: 'script_v2.js' },
-          { name: 'style.css' },
-        ]
+          { name: 'index_v2.html'    },
+          { name: 'script.js'        },
+          { name: 'script_v2.js'     },
+          { name: 'style.css'        },
+        ],
       },
       {
         name: 'my-project_experimental',
         files: [
           { name: 'index.html' },
-          { name: 'script.js' },
-          { name: 'style.css' },
-        ]
+          { name: 'script.js'  },
+          { name: 'style.css'  },
+        ],
       },
       {
         name: 'my-project_FINAL',
         files: [
           { name: 'index.html' },
-          { name: 'script.js' },
-          { name: 'style.css' },
-        ]
-      }
-    ]
-  }
+          { name: 'script.js'  },
+          { name: 'style.css'  },
+        ],
+      },
+    ],
+  },
 ];
 
 let feCurrentStep = 0;
 
 function buildFolderEl(folder, isSolution) {
-  const folderEl = document.createElement('div');
-  folderEl.className = 'fe-folder' +
-    (folder.isNew ? ' fe-folder-new' : '') +
-    (isSolution ? ' fe-folder-solution' : '');
+  const el = document.createElement('div');
+  el.className =
+    'fe-folder' +
+    (folder.isNew    ? ' fe-folder-new'      : '') +
+    (isSolution      ? ' fe-folder-solution' : '');
 
-  const folderName = document.createElement('div');
-  folderName.className = 'fe-folder-name';
-  folderName.textContent = '📁 ' + folder.name;
-  folderEl.appendChild(folderName);
+  const nameEl = document.createElement('div');
+  nameEl.className   = 'fe-folder-name';
+  nameEl.textContent = '📁 ' + folder.name;
+  el.appendChild(nameEl);
 
   const ul = document.createElement('ul');
   ul.className = 'fe-folder-tree';
-  folder.files.forEach(file => {
+  folder.files.forEach(f => {
     const li = document.createElement('li');
-    li.className = file.isGit ? 'file-new' : (file.isNew ? 'file-new-red' : 'file');
-    li.textContent = file.name;
+    li.className   = f.isGit
+      ? 'file-new'
+      : (f.isNew ? 'file-new-red' : 'file');
+    li.textContent = f.name;
     ul.appendChild(li);
   });
-  folderEl.appendChild(ul);
-  return folderEl;
+  el.appendChild(ul);
+  return el;
 }
 
 function renderFileExplorer() {
@@ -348,225 +507,451 @@ function renderFileExplorer() {
   const total = feSteps.length;
 
   narrative.textContent = step.narrative;
-  if (stepLabel) stepLabel.textContent = (feCurrentStep + 1) + ' / ' + total;
-
+  if (stepLabel) {
+    stepLabel.textContent = (feCurrentStep + 1) + ' / ' + total;
+  }
   treeWrap.innerHTML = '';
 
   if (step.isSolution && step.beforeFolders) {
-    // Side-by-side layout for the final step
-    const compareWrap = document.createElement('div');
-    compareWrap.className = 'fe-compare';
+    const wrap = document.createElement('div');
+    wrap.className = 'fe-compare';
 
-    // Left: before
-    const beforeCol = document.createElement('div');
-    beforeCol.className = 'fe-compare-col fe-compare-before';
-    const beforeLabel = document.createElement('div');
-    beforeLabel.className = 'fe-compare-label';
-    beforeLabel.textContent = 'Without git';
-    beforeCol.appendChild(beforeLabel);
-    step.beforeFolders.forEach(folder => {
-      beforeCol.appendChild(buildFolderEl(folder, false));
+    const before = document.createElement('div');
+    before.className = 'fe-compare-col fe-compare-before';
+    const bLabel = document.createElement('div');
+    bLabel.className   = 'fe-compare-label';
+    bLabel.textContent = 'Without git';
+    before.appendChild(bLabel);
+    step.beforeFolders.forEach(f => {
+      before.appendChild(buildFolderEl(f, false));
     });
 
-    // Divider
     const divider = document.createElement('div');
-    divider.className = 'fe-compare-divider';
+    divider.className   = 'fe-compare-divider';
     divider.textContent = '→';
 
-    // Right: after
-    const afterCol = document.createElement('div');
-    afterCol.className = 'fe-compare-col fe-compare-after';
-    const afterLabel = document.createElement('div');
-    afterLabel.className = 'fe-compare-label';
-    afterLabel.textContent = 'With git';
-    afterCol.appendChild(afterLabel);
-    step.folders.forEach(folder => {
-      afterCol.appendChild(buildFolderEl(folder, true));
+    const after = document.createElement('div');
+    after.className = 'fe-compare-col fe-compare-after';
+    const aLabel = document.createElement('div');
+    aLabel.className   = 'fe-compare-label';
+    aLabel.textContent = 'With git';
+    after.appendChild(aLabel);
+    step.folders.forEach(f => {
+      after.appendChild(buildFolderEl(f, true));
     });
 
-    compareWrap.appendChild(beforeCol);
-    compareWrap.appendChild(divider);
-    compareWrap.appendChild(afterCol);
-    treeWrap.appendChild(compareWrap);
+    wrap.appendChild(before);
+    wrap.appendChild(divider);
+    wrap.appendChild(after);
+    treeWrap.appendChild(wrap);
   } else {
-    // Normal single-column layout
-    step.folders.forEach(folder => {
-      treeWrap.appendChild(buildFolderEl(folder, false));
+    const wrap = document.createElement('div');
+    wrap.style.display  = 'flex';
+    wrap.style.flexWrap = 'wrap';
+    wrap.style.gap      = '20px';
+    step.folders.forEach(f => {
+      wrap.appendChild(buildFolderEl(f, false));
     });
+    treeWrap.appendChild(wrap);
   }
 
-  // Update button
   if (nextBtn) {
     const isLast = feCurrentStep >= total - 1;
     nextBtn.textContent = isLast ? '↺ Start over' : 'Next →';
-    nextBtn.className   = 'fe-btn' + (step.isSolution ? ' primary' : '');
+    nextBtn.className   =
+      'fe-btn' + (step.isSolution ? ' primary' : '');
   }
 }
 
 function feNext() {
-  const total = feSteps.length;
-  feCurrentStep = (feCurrentStep + 1) % total;
+  feCurrentStep = (feCurrentStep + 1) % feSteps.length;
   renderFileExplorer();
 }
 
 function initFileExplorer() {
   feCurrentStep = 0;
   renderFileExplorer();
-  const nextBtn = document.getElementById('fe-next-btn');
-  if (nextBtn) nextBtn.addEventListener('click', feNext);
+  const btn = document.getElementById('fe-next-btn');
+  if (btn && !btn.dataset.initialized) {
+    btn.dataset.initialized = 'true';
+    btn.addEventListener('click', feNext);
+  }
 }
 
-/* ── Markdown Loader ─────────────────────────────────────────── */
-/*
-  Loads .md files from the /sections/ folder.
-  Each section HTML can include:
-    <div class="md-section" data-src="sections/01-why-git.md"></div>
-  The loader fetches the markdown, does a minimal parse, and inserts it.
-
-  Special interactive tags in markdown:
-    [INTERACTIVE: file-explorer]  → replaced by the file explorer widget
-*/
-
-async function loadMarkdownSections() {
-  const containers = document.querySelectorAll('.md-section[data-src]');
-  for (const container of containers) {
-    try {
-      const res = await fetch(container.dataset.src);
-      if (!res.ok) continue;
-      const md = await res.text();
-      container.innerHTML = parseMarkdown(md);
-    } catch(e) {
-      container.innerHTML = '<p style="color:var(--danger)">Could not load section content.</p>';
-    }
-  }
-  initTooltips();
+/* =============================================================
+   MARKDOWN PARSER
+   Handles all content and component tags.
+   ============================================================= */
+function escHtml(str) {
+  return str
+    .replace(/&/g,  '&amp;')
+    .replace(/</g,  '&lt;')
+    .replace(/>/g,  '&gt;');
 }
 
 function parseMarkdown(md) {
-  // Handle [INTERACTIVE: file-explorer] tag
-  md = md.replace(/\[INTERACTIVE:\s*file-explorer\]/gi, getFileExplorerHTML());
 
-  // Handle [QUIZ] blocks
-  // Syntax:
-  //   [QUIZ id="quiz-1" hint="Your hint here"]
-  //   Q: Your question text?
-  //   - Wrong answer
-  //   - Another wrong answer
-  //   * Correct answer (asterisk marks correct)
-  //   [/QUIZ]
-  md = md.replace(/\[QUIZ([^\]]*)\]([\s\S]*?)\[\/QUIZ\]/gi, (_, attrs, body) => {
-    const id    = (attrs.match(/id="([^"]+)"/)    || [])[1] || 'quiz-' + Math.random().toString(36).slice(2,7);
-    const hint  = (attrs.match(/hint="([^"]+)"/)  || [])[1] || 'Think carefully about each option.';
-
-    const lines  = body.trim().split('\n').map(l => l.trim()).filter(Boolean);
-    const qLine  = lines.find(l => l.startsWith('Q:'));
-    const question = qLine ? qLine.replace(/^Q:\s*/, '') : 'Question';
-
-    const options = lines
-      .filter(l => l.startsWith('-') || l.startsWith('*'))
-      .map(l => {
-        const correct = l.startsWith('*');
-        const text    = l.replace(/^[-*]\s*/, '');
-        return { text, correct };
-      });
-
-    const optionsHtml = options.map(o =>
-      `<li><button ${o.correct ? 'data-correct="true" ' : ''}onclick="checkAnswer(this, ${o.correct})">${o.text}</button></li>`
-    ).join('\n        ');
-
-    return `
-<div class="quiz-block" id="${id}" data-hint="${hint}">
-  <h4>✦ Quick Check</h4>
-  <p class="quiz-question">${question}</p>
-  <ul class="quiz-options">
-    ${optionsHtml}
-  </ul>
-  <p class="quiz-feedback">Answer correctly to unlock the next section.</p>
-</div>`;
-  });
-
-  // Protect raw HTML blocks (divs, spans) from being mangled
+  /* ── Protect raw HTML spans ── */
   const htmlBlocks = [];
-  md = md.replace(/(<(?:div|span)[^>]*>[\s\S]*?<\/(?:div|span)>)/g, (match) => {
+  md = md.replace(/(<span[^>]*>[\s\S]*?<\/span>)/g, match => {
     htmlBlocks.push(match);
-    return `\x00HTML_BLOCK_${htmlBlocks.length - 1}\x00`;
+    return `\x00HTML${htmlBlocks.length - 1}\x00`;
   });
 
-  let html = md
-    // fenced code blocks
-    .replace(/```(\w*)\n([\s\S]*?)```/gm, (_, lang, code) =>
-      `<div class="code-block"><div class="code-block-header"><span>${lang || 'bash'}</span></div><pre>${escHtml(code.trim())}</pre></div>`)
-    // inline code (before bold/italic to avoid conflicts)
-    .replace(/`([^`\n]+)`/g, '<code>$1</code>')
-    // bold
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    // italic (only single asterisk not preceded by another)
-    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
-    // h3
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    // h2
-    .replace(/^## (.+)$/gm, '<h3>$1</h3>')
-    // unordered list items
-    .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
-    // numbered list items
-    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-    // wrap consecutive <li> blocks in <ul>
-    .replace(/(<li>[\s\S]*?<\/li>\n?)+/g, match => `<ul>${match}</ul>`)
-    // split on double newlines for paragraphs
-    .split(/\n\n+/)
-    .map(block => {
-      block = block.trim();
-      if (!block) return '';
-      // don't wrap already-block elements
-      if (/^<(h[1-6]|ul|ol|div|pre|table|hr|\x00HTML)/.test(block)) return block;
-      return `<p>${block}</p>`;
-    })
-    .join('\n');
+  /* ── [INTERACTIVE: file-explorer] ── */
+  md = md.replace(/\[INTERACTIVE:\s*file-explorer\]/gi, [
+    '<div id="file-explorer-section">',
+    '  <div class="fe-header">',
+    '    <h2>📁 The Version Control Problem</h2>',
+    '    <p>Click through to see how file management gets',
+    '    out of hand without git.</p>',
+    '  </div>',
+    '  <div class="fe-body">',
+    '    <div class="fe-narrative" id="fe-narrative"></div>',
+    '    <div class="fe-workspace">',
+    '      <div id="fe-tree-wrap"></div>',
+    '    </div>',
+    '    <div class="fe-controls">',
+    '      <button class="fe-btn" id="fe-next-btn">',
+    '        Next →',
+    '      </button>',
+    '      <span class="fe-step-label" id="fe-step-label">',
+    '        1 / 6',
+    '      </span>',
+    '    </div>',
+    '  </div>',
+    '</div>',
+  ].join('\n'));
 
-  // Restore HTML blocks
-  html = html.replace(/\x00HTML_BLOCK_(\d+)\x00/g, (_, i) => htmlBlocks[parseInt(i)]);
-
-  return html;
-}
-
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function getFileExplorerHTML() {
-  return `
-  <div id="file-explorer-section">
-    <div class="fe-header">
-      <h2>📁 The Version Control Problem</h2>
-      <p>Click through to see how file management gets out of hand without git.</p>
-    </div>
-    <div class="fe-body">
-      <div class="fe-narrative" id="fe-narrative"></div>
-      <div class="fe-workspace">
-        <div id="fe-tree-wrap"></div>
-      </div>
-      <div class="fe-controls">
-        <button class="fe-btn" id="fe-next-btn">Next →</button>
-        <span class="fe-step-label" id="fe-step-label">1 / 6</span>
-      </div>
-    </div>
-  </div>`;
-}
-
-/* ── Init ────────────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
-  restoreProgress();
-  updateProgress();
-
-  // Load markdown sections first, then init anything that was injected
-  loadMarkdownSections().then(() => {
-    // Init file explorer after markdown injection completes
-    const nextBtn = document.getElementById('fe-next-btn');
-    if (nextBtn && !nextBtn.dataset.initialized) {
-      nextBtn.dataset.initialized = 'true';
-      initFileExplorer();
+  /* ── [QUIZ] blocks ── */
+  md = md.replace(
+    /\[QUIZ([^\]]*)\]([\s\S]*?)\[\/QUIZ\]/gi,
+    (_, attrs, body) => {
+      const id = (attrs.match(/id="([^"]+)"/) || [])[1]
+        || 'quiz-' + Math.random().toString(36).slice(2, 7);
+      const hint = (attrs.match(/hint="([^"]+)"/) || [])[1]
+        || 'Think carefully about each option.';
+      const lines = body.trim().split('\n')
+        .map(l => l.trim()).filter(Boolean);
+      const question = (
+        lines.find(l => l.startsWith('Q:')) || 'Q: '
+      ).replace(/^Q:\s*/, '');
+      const options = lines
+        .filter(l => /^[-*]/.test(l))
+        .map(l => ({
+          correct: l.startsWith('*'),
+          text: l.replace(/^[-*]\s*/, ''),
+        }));
+      const optHtml = options.map(o => {
+        const dataAttr = o.correct
+          ? 'data-correct="true" '
+          : '';
+        return (
+          `<li><button ${dataAttr}` +
+          `onclick="checkAnswer(this,${o.correct})">` +
+          `${o.text}</button></li>`
+        );
+      }).join('\n');
+      return [
+        `<div class="quiz-block" id="${id}"`,
+        `  data-hint="${hint}">`,
+        '  <h4>✦ Quick Check</h4>',
+        `  <p class="quiz-question">${question}</p>`,
+        `  <ul class="quiz-options">${optHtml}</ul>`,
+        '  <p class="quiz-feedback">',
+        '    Answer correctly to unlock the next section.',
+        '  </p>',
+        '</div>',
+      ].join('\n');
     }
-    initTooltips();
-    updateProgress();
+  );
+
+  /* ── [ACCORDION title="..."] ... [/ACCORDION] ── */
+  md = md.replace(
+    /\[ACCORDION title="([^"]+)"\]([\s\S]*?)\[\/ACCORDION\]/gi,
+    (_, title, content) => [
+      '<div class="accordion">',
+      '  <button class="accordion-btn"',
+      '    onclick="toggleAccordion(this)">',
+      `    <span>${title}</span>`,
+      '    <span class="chevron">▼</span>',
+      '  </button>',
+      '  <div class="accordion-body">',
+      '    <div class="accordion-inner">',
+      `      ${parseInlineMarkdown(content.trim())}`,
+      '    </div>',
+      '  </div>',
+      '</div>',
+    ].join('\n')
+  );
+
+  /* ── [CALLOUT type="..."] ... [/CALLOUT] ── */
+  const calloutIcons = {
+    tip:     '💡',
+    note:    'ℹ️',
+    warning: '⚠️',
+    success: '🎉',
+  };
+  md = md.replace(
+    /\[CALLOUT type="([^"]+)"\]([\s\S]*?)\[\/CALLOUT\]/gi,
+    (_, type, content) => {
+      const icon = calloutIcons[type] || 'ℹ️';
+      return [
+        `<div class="callout ${type}">`,
+        `  <span class="callout-icon">${icon}</span>`,
+        `  <div>${parseInlineMarkdown(content.trim())}</div>`,
+        '</div>',
+      ].join('\n');
+    }
+  );
+
+  /* ── [PRACTICE title="..."] ... [/PRACTICE] ── */
+  md = md.replace(
+    /\[PRACTICE title="([^"]+)"\]([\s\S]*?)\[\/PRACTICE\]/gi,
+    (_, title, content) => {
+      const lines = content.trim().split('\n');
+      let html   = `<div class="practice-box"><h4>${title}</h4>`;
+      let inList = false;
+      lines.forEach(line => {
+        line = line.trim();
+        if (!line) return;
+        if (line.startsWith('- ')) {
+          if (!inList) {
+            html  += '<ul class="checklist">';
+            inList = true;
+          }
+          html +=
+            '<li onclick="toggleCheck(this)">' +
+            '<span class="check-icon">✓</span>' +
+            line.slice(2) +
+            '</li>';
+        } else {
+          if (inList) { html += '</ul>'; inList = false; }
+          html += `<p>${parseInlineMarkdown(line)}</p>`;
+        }
+      });
+      if (inList) html += '</ul>';
+      html += '</div>';
+      return html;
+    }
+  );
+
+  /* ── [RESOURCES] ... [/RESOURCES] ── */
+  md = md.replace(
+    /\[RESOURCES\]([\s\S]*?)\[\/RESOURCES\]/gi,
+    (_, content) => {
+      const cards = content.trim().split(/\n---\n/).map(card => {
+        const lines = card.trim().split('\n')
+          .map(l => l.trim()).filter(Boolean);
+        const get = key => (
+          lines.find(l => l.startsWith(key + ':'))
+            ?.replace(key + ':', '').trim() || ''
+        );
+        const title    = get('title');
+        const desc     = get('desc');
+        const url      = get('url');
+        const linkText = get('link') || url;
+        const link = url
+          ? `<a href="${url}" target="_blank" rel="noopener">` +
+            `${linkText} →</a>`
+          : '';
+        return [
+          '<div class="resource-card">',
+          `  <h4>${title}</h4>`,
+          `  <p>${desc}</p>`,
+          `  ${link}`,
+          '</div>',
+        ].join('\n');
+      });
+      return `<div class="resource-grid">${cards.join('')}</div>`;
+    }
+  );
+
+  /* ── Fenced code blocks ── */
+  md = md.replace(/```(\w*)\n([\s\S]*?)```/gm, (_, lang, code) => [
+    '<div class="code-block">',
+    '  <div class="code-block-header">',
+    `    <span>${lang || 'bash'}</span>`,
+    '  </div>',
+    `  <pre>${escHtml(code.trim())}</pre>`,
+    '</div>',
+  ].join('\n'));
+
+  /* ── Tables ── */
+  md = md.replace(
+    /(\|.+\|\n)((?:\|[-: ]+)+\|\n)((?:\|.+\|\n?)+)/gm,
+    (_, header, _sep, body) => {
+      const parseRow = row =>
+        row.trim()
+          .split('|')
+          .filter((_, i, a) => i > 0 && i < a.length - 1)
+          .map(c => c.trim());
+      const headers = parseRow(header);
+      const rows    = body.trim().split('\n').map(parseRow);
+      const ths = headers
+        .map(h => `<th>${parseInlineMarkdown(h)}</th>`)
+        .join('');
+      const trs = rows.map(r =>
+        '<tr>' +
+        r.map(c => `<td>${parseInlineMarkdown(c)}</td>`).join('') +
+        '</tr>'
+      ).join('');
+      return (
+        '<table class="lesson-table">' +
+        `<thead><tr>${ths}</tr></thead>` +
+        `<tbody>${trs}</tbody>` +
+        '</table>'
+      );
+    }
+  );
+
+  /* ── Images ![alt](src "caption") ── */
+  md = md.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => {
+    const parts   = src.split(' "');
+    const imgSrc  = parts[0].trim();
+    const caption = parts[1]
+      ? parts[1].replace('"', '').trim()
+      : alt;
+    const cap = caption
+      ? `<p class="lesson-img-caption">${caption}</p>`
+      : '';
+    return `<img src="${imgSrc}" alt="${alt}" class="lesson-img">${cap}`;
   });
+
+  /* ── Block-level pass: split on double newline ── */
+  const html = md.split(/\n\n+/).map(block => {
+    block = block.trim();
+    if (!block) return '';
+    if (/^</.test(block)) return block;
+
+    if (/^### /.test(block)) {
+      return `<h3>${parseInlineMarkdown(
+        block.replace(/^### /, '')
+      )}</h3>`;
+    }
+    if (/^## /.test(block)) {
+      return `<h3>${parseInlineMarkdown(
+        block.replace(/^## /, '')
+      )}</h3>`;
+    }
+    if (/^[-*] /.test(block)) {
+      const items = block.split('\n')
+        .filter(l => /^[-*] /.test(l.trim()));
+      return '<ul>' + items.map(i =>
+        `<li>${parseInlineMarkdown(i.replace(/^[-*] /, ''))}</li>`
+      ).join('') + '</ul>';
+    }
+    if (/^\d+\. /.test(block)) {
+      const items = block.split('\n')
+        .filter(l => /^\d+\. /.test(l.trim()));
+      return '<ol>' + items.map(i =>
+        `<li>${parseInlineMarkdown(i.replace(/^\d+\. /, ''))}</li>`
+      ).join('') + '</ol>';
+    }
+    if (/^---+$/.test(block)) return '<hr />';
+
+    return `<p>${parseInlineMarkdown(block.replace(/\n/g, ' '))}</p>`;
+  }).join('\n');
+
+  /* ── Restore protected HTML spans ── */
+  return html.replace(
+    /\x00HTML(\d+)\x00/g,
+    (_, i) => htmlBlocks[parseInt(i)]
+  );
+}
+
+/* Inline markdown — bold, italic, code, links */
+function parseInlineMarkdown(str) {
+  return str
+    .replace(/`([^`]+)`/g,
+      '<code>$1</code>')
+    .replace(/\*\*(.+?)\*\*/g,
+      '<strong>$1</strong>')
+    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g,
+      '<em>$1</em>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+
+/* =============================================================
+   SECTION BUILDER
+   Creates DOM shells from the manifest, then loads markdown.
+   ============================================================= */
+function buildSectionShell(section) {
+  const div = document.createElement('div');
+
+  if (section.bare) {
+    div.id        = section.id;
+    div.className = 'bare-section';
+    return div;
+  }
+
+  div.id        = section.id;
+  div.className = 'step-section' + (section.locked ? ' locked' : '');
+  if (section.requires) {
+    div.dataset.requires = section.requires;
+  }
+
+  const nonBare = SECTIONS.filter(s => !s.bare);
+  const isLast  = section.number === nonBare.length;
+
+  div.innerHTML = [
+    '<div class="section-header">',
+    `  <span class="section-number">${section.number}</span>`,
+    `  <h2>${section.title}</h2>`,
+    '</div>',
+    '<div class="section-content"></div>',
+    isLast ? '' : '<hr />',
+  ].join('\n');
+
+  return div;
+}
+
+async function loadSection(section, shell) {
+  const target =
+    shell.querySelector('.section-content') || shell;
+  try {
+    const res = await fetch(section.src);
+    if (!res.ok) throw new Error('Not found');
+    const md = await res.text();
+    target.innerHTML = parseMarkdown(md);
+  } catch (e) {
+    target.innerHTML =
+      `<p style="color:var(--danger);font-size:13px">` +
+      `Could not load ${section.src}</p>`;
+  }
+}
+
+async function buildLesson() {
+  const root = document.getElementById('lesson-root');
+  if (!root) return;
+
+  const shells = SECTIONS.map(section => {
+    const shell = buildSectionShell(section);
+    root.appendChild(shell);
+    return { section, shell };
+  });
+
+  restoreProgress();
+
+  await Promise.all(
+    shells.map(({ section, shell }) => loadSection(section, shell))
+  );
+
+  const feBtn = document.getElementById('fe-next-btn');
+  if (feBtn && !feBtn.dataset.initialized) {
+    feBtn.dataset.initialized = 'true';
+    initFileExplorer();
+  }
+
+  initTooltips();
+  updateProgress();
+}
+
+/* =============================================================
+   INIT
+   ============================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  updateProgress();
+  buildLesson();
 });

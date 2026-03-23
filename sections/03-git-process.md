@@ -9,3 +9,11 @@ A workflow will have different practices and norms depending on who is contribut
 **merge** — Merging is when a branch gets integrated into main. Your changes become part of the main project. After merging, the admin cleans up the branch on GitHub, and you update your local main and delete your local branch.
 
 Branches are extremely powerful. When you switch branches, git literally changes the files in your project folder to match that branch's state. Your actual code changes. This means two different versions of the same project can exist in the same folder — just swap which branch you're on.
+
+[ACCORDION title="💡 Why branch even for small edits?"]
+Even a one-line typo fix should go on a branch in a collaborative repo. The value of the rule comes from it being consistent — if you introduce exceptions for "small" changes, everyone makes judgment calls about what counts as small enough, and occasionally someone misjudges. Once the workflow is smooth, creating a branch and opening a PR takes about 60 seconds.
+[/ACCORDION]
+
+[ACCORDION title="💡 Can a PR stay open without merging?"]
+Yes! A PR is a *request* and a conversation — not a guaranteed merge. It can be merged, closed without merging, or left open while discussion continues. Some repos also have long-running branches like `dev` or `staging` that never get deleted.
+[/ACCORDION]

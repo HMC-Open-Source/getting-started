@@ -36,6 +36,10 @@ git push -u origin main
 
 Now your GitHub repo is synced with your local files.
 
+[CALLOUT type="note"]
+These steps are for starting a brand new project. If you're joining an existing repo, skip ahead to the Internal Contributor Workflow.
+[/CALLOUT]
+
 [QUIZ id="quiz-2" hint="Think about what the -u flag does and when you only need it."]
 Q: You've just created a new branch called fix-header and made your first commit. What command pushes this branch to GitHub for the first time?
 - git push
