@@ -39,6 +39,8 @@ const SECTIONS = [
     number: 2,
     title: 'Commit messages & history',
     src: 'sections/02-commits.md',
+    locked: true,
+    requires: 'quiz-1a quiz-1b',
   },
   {
     id: 'section-process',
@@ -930,8 +932,6 @@ async function buildLesson() {
     return { section, shell };
   });
 
-  restoreProgress();
-
   // Load the file explorer section first so we can init it
   // before the rest of the sections load in parallel
   const explorerEntry = shells.find(
@@ -958,6 +958,8 @@ async function buildLesson() {
       loadSection(section, shell)
     )
   );
+
+  restoreProgress();
 
   initTooltips();
   updateProgress();
