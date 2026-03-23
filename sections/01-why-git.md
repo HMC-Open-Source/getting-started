@@ -4,10 +4,8 @@ points that you choose.
 
 **Git** is an open-source distributed version control system created by Linux Torvalds in 2005. 
 When installed, you can run git completely on its own to version control a project. **GitHub**, 
-on the other hand, is a web-based platform that allows for collaboration.
-
-This lesson will focus on how to use git with GitHub. If you wanted to use git on your own, you
-just wouldn't use push and pull commands.
+on the other hand, is a web-based platform that allows for collaboration on a **git repository**
+between multiple people.
 
 The core of git lies in **commits**.
 
@@ -17,18 +15,6 @@ now, you only need to know that commits keep a history of you changes and allows
 - Go back to any snapshot
 - See exactly what changed between snapshots and who changed it
 - Experiment freely knowing nothing is permanently lost
-
-[ACCORDION title="🔍 What does a diff actually look like?"]
-A diff shows line-by-line what changed between two snapshots. Lines removed show with a `-` 
-prefix, lines added show with a `+` prefix. You'll see this view any time you open a pull 
-request on GitHub.
- 
-```diff
-- This line was removed
-+ This line was added
-  This line stayed the same
-```
-[/ACCORDION]
 
 [QUIZ id="quiz-1a" hint="Commits are the bread and butter of git"]
 Q: What are commits? 
