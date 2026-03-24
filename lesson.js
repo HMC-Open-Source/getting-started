@@ -61,7 +61,7 @@ const SECTIONS = [
   {
     id: 'section-setup',
     number: 5,
-    title: 'Setting Up Git',
+    title: 'Setting Up git with GitHub',
     src: 'sections/05-setup.md',
     locked: true,
     requires: 'quiz-4a',
