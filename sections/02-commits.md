@@ -1,4 +1,6 @@
-Use `git log --oneline` to see your commit history at a glance. Each line is one commit — a short hash on the left and the commit message on the right. Most recent commit is at the top.
+Use `git log --oneline` to see your commit history at a glance. Each line is one commit which
+contains a short hash on the left and the commit message on the right. The most recent commit is 
+at the top.
 
 ```bash
 a3f8c21 fix broken nav link on mobile
@@ -7,22 +9,29 @@ f7b3c09 update homepage text
 2a1d887 initial commit
 ```
 
-The **hash** is git's unique ID for each snapshot. The **commit message** is your note about what changed. Good messages make your history readable — `fixed broken nav link` tells you something useful, `stuff` tells you nothing.
+The **hash** is git's unique ID for each commit, or snapshot. 
 
-Use `git reflog` for a more comprehensive history that includes every time your HEAD pointer moved — even resets and checkouts. Think of `git log` as your project's public history and `git reflog` as git's private diary.
+The **commit message** is your note about what changed. 
+
+Good messages make your history readable. For example, `fixed broken nav link` tells you something 
+useful, while `fixed bug` doesn't really tell you anything.
+
+Use `git reflog` for a more comprehensive history, which you can read more about by 
+[clicking here](https://git-scm.com/docs/git-reflog).
 
 ### Three ways to access old commits
 
-- `git checkout <hash>` — just want to look? This puts you in "detached HEAD" state. You're visiting that snapshot but nothing changes permanently. Get back with `git checkout main`.
-- `git revert <hash>` — want to undo a commit but keep the history? This creates a *new* commit that applies the opposite changes. Recommended for shared repos.
-- `git reset --hard <hash>` — want to roll the branch back in time? This moves the branch pointer backward. Use with caution on shared repos.
+| Command | What it does |
+| --- | --- |
+| `git checkout f7b3c09` | I just want to look at an old commit, which puts you in a detached HEAD state. |
+| `git revert f7b3c09` | I want to undo a commit but keep the history. This creates a *new* commit that applies the opposite changes. Recommended for shared repos. |
+| `git reset --hard f7b3c09` | I want to rollback the branch in time. This deletes commits by moving the branch pointer backward. |
 
-The key difference: `git revert` moves **forward** by adding a new commit. `git reset` moves **backward** by rewriting history.
 
-[ACCORDION title="🕰 What happens visually with revert vs reset?"]
-**git revert** adds a new commit that undoes the target. History keeps moving forward — nothing is erased, just corrected.
-
-**git reset --hard** moves the branch pointer backward. Commits after the target disappear from the history.
-
-General rule: use `git revert` on shared repos. Use `git reset` only on local solo work where nobody else has pulled your commits yet.
-[/ACCORDION]
+[QUIZ id="quiz-2a"]
+Q: What command works to show you the history of your commits?  
+- git checkout 
+* git log --oneline
+- git commits
+- git hash
+[/QUIZ]

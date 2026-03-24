@@ -47,6 +47,8 @@ const SECTIONS = [
     number: 3,
     title: 'The Git Process',
     src: 'sections/03-git-process.md',
+    locked: true,
+    requires: 'quiz-2a',
   },
   {
     id: 'section-diagram',

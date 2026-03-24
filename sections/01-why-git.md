@@ -10,7 +10,7 @@ between multiple people.
 The core of git lies in **commits**.
 
 **COMMITS** are like deliberate snapshots of your project, like save points in a video game. For
-now, you only need to know that commits keep a history of you changes and allows you to: 
+now, you only need to know that commits keep a history of your changes and allows you to: 
 
 - Go back to any snapshot
 - See exactly what changed between snapshots and who changed it
