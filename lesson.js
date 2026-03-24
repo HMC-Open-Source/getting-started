@@ -72,7 +72,7 @@ const SECTIONS = [
     title: 'Initializing Git for Your Own Project',
     src: 'sections/06-init.md',
     locked: true,
-    requires: 'quiz-1',
+    requires: 'quiz-5a',
   },
   {
     id: 'section-push',
@@ -80,7 +80,7 @@ const SECTIONS = [
     title: 'A Note About git push & Branches',
     src: 'sections/07-push-branches.md',
     locked: true,
-    requires: 'quiz-2',
+    requires: 'quiz-6a',
   },
   {
     id: 'section-checkout',
@@ -88,7 +88,7 @@ const SECTIONS = [
     title: 'New Ways to "checkout"',
     src: 'sections/08-checkout.md',
     locked: true,
-    requires: 'quiz-2',
+    requires: 'quiz-6a',
   },
   {
     id: 'section-internal',
@@ -96,7 +96,7 @@ const SECTIONS = [
     title: 'Internal Contributor Workflow',
     src: 'sections/09-internal.md',
     locked: true,
-    requires: 'quiz-2',
+    requires: 'quiz-6a',
   },
   {
     id: 'section-external',

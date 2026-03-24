@@ -54,7 +54,7 @@ SSH is preferred over HTTPS because once it's set up, you never need to enter cr
 again. When cloning, always choose the **SSH** tab on GitHub's Code button, not HTTPS.
 [/CALLOUT]
 
-[QUIZ id="quiz-1" hint="Think about which method avoids managing passwords or tokens."]
+[QUIZ id="quiz-5a" hint="Think about which method avoids managing passwords or tokens."]
 Q: Why do we use SSH to authenticate with GitHub instead of HTTPS?
 - HTTPS doesn't work on Mac or Linux
 - SSH is faster for large file transfers
