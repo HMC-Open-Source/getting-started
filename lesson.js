@@ -125,7 +125,7 @@ const SECTIONS = [
   {
     id: 'section-further',
     number: 13,
-    title: "What's Next — Limitations & Further Learning",
+    title: "What's Next: Limitations & Further Learning",
     src: 'sections/13-further-learning.md',
     locked: true,
     requires: 'quiz-3',
@@ -220,7 +220,7 @@ function checkAnswer(btn, isCorrect) {
 
   if (attempts === 1) {
     feedback.textContent =
-      'Not quite — double check your answer and try again.';
+      'Not quite. Double check your answer and try again.';
     feedback.className = 'quiz-feedback wrong';
   } else if (attempts === 2) {
     const hint = block.dataset.hint
@@ -236,7 +236,7 @@ function checkAnswer(btn, isCorrect) {
       }
     });
     feedback.textContent =
-      "Here's the correct answer — review it before moving on.";
+      "Here's the correct answer. Review it before moving on.";
     feedback.className = 'quiz-feedback wrong';
   }
 }
@@ -331,7 +331,7 @@ const feSteps = [
   {
     narrative:
       "You want to do some experimental changes, but you don't " +
-      "want to lose your working version just yet — so you save " +
+      "want to lose your working version just yet so you save " +
       "a copy of index.html.",
     folders: [
       {
@@ -364,7 +364,7 @@ const feSteps = [
   },
   {
     narrative:
-      "This is getting cumbersome — index_v2.html and script_v2.js " +
+      "This is getting cumbersome since index_v2.html and script_v2.js " +
       "reference each other, but so do the originals. You copy the " +
       "v2 files into a separate folder so they stay together.",
     folders: [
