@@ -14,10 +14,10 @@ workflow when using git with GitHub.
 | **merge** | Merging is when a branch gets integrated into main. After merging, the admin cleans up the branch on GitHub, and you update your local main and delete your local branch. |
 
 
-Branching is an extremely powerful tool. When you switch branches, git literally changes the files
-in your project folder to match that branch's state. Your actual code changes. This means two 
-different versions of the same project can exist in the same folder. All you have to do is switch
-branches (which we'll talk about in a later section).
+Branching is an extremely powerful tool. When you switch branches, git literally changes the 
+files in your project folder to match that branch's state. Your actual code changes. This means 
+two different versions of the same project can exist in the same folder. All you have to do is 
+switch branches (which we'll talk about in a later section).
 
 
 [ACCORDION title="💡 Why branch even for small edits?"]
@@ -33,3 +33,11 @@ Yes! A PR is a *request* and a conversation, not a guaranteed merge. It can be m
 without merging, or left open while discussion continues. Some repos also have long-running 
 branches that never get deleted.
 [/ACCORDION]
+
+[QUIZ id="quiz-4a"]
+Q: How can you best avoid merge conflicts with "origin/main"?
+- Push to main
+- Update your code meticulously by hand
+- Give up
+* Pull from main, often
+[/QUIZ]
