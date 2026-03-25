@@ -1,8 +1,8 @@
-Use this when you're starting a brand new project and want git to start tracking it. You can 
-also do this entirely through the GitHub interface if you prefer.
+Use this when you're starting a brand new project and want git to start tracking it. 
 
 If you don't have a project readily available, create some simple "Hello, World" programs to
-practice this. Make sure to practice this exercise on your own GitHub account!
+practice this. Make sure to do this exercise on your own GitHub account and not in the
+organization.
 
 [ACCORDION title="💡 How to switch between your personal account and the HMC Open Source org"]
 Try this exercise out in your own personal. If you've never used GitHub Organizations, you can
@@ -16,7 +16,7 @@ alt="screenshot of user profile and organizaiton" />
 
 There are several ways to initialize git depending on whether:
 
-- You have an existing project 
+- You have an existing project on your local machine
 - There is an existing project on GitHub 
 - You are about to start a project but your folder is empty or non-existent
 
@@ -24,8 +24,8 @@ For this section, we will focus on **you having an existing project** with files
 steps should work for an empty project as well. 
 
 **1. Create a new repo on GitHub.** Make your repo private if you think it would go against 
-academic honesty. Or make your repo private if you're just testing with some dummy files. Do
-NOT add a README.md file or any other extra files that GitHub prompts you with. 
+academic honesty. Or make your repo private if you're just testing with some dummy files. **Do
+NOT add a README.md file or any other extra files** that GitHub prompts you with. 
 
 **2. Navigate to your project folder in the terminal.**
 
