@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Recs — Get in the GitHub Workflow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Variables (mirrors lesson.css) ── */
+    :root {
+      --bg-base:        #0d1117;
+      --bg-elevated:    #161b22;
+      --bg-subtle:      #21262d;
+      --bg-overlay:     #2d333b;
+      --border:         #30363d;
+
+      --text-primary:   #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted:     #6e7681;
+
+      --green:          #0FBF3E;
+      --green-muted:    rgba(15, 191, 62, 0.12);
+      --green-border:   rgba(15, 191, 62, 0.3);
+      --purple:         #8534F3;
+      --purple-muted:   rgba(133, 52, 243, 0.12);
+      --purple-border:  rgba(133, 52, 243, 0.3);
+
+      --font-body: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    a { color: var(--green); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      font-family: var(--font-mono); font-size: 0.875em;
+      background: var(--bg-subtle); border: 1px solid var(--border);
+      border-radius: 3px; padding: 1px 6px; color: var(--green);
+    }
+    strong { color: var(--text-primary); font-weight: 600; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: var(--bg-overlay); border-radius: 99px; }
+
+    /* ── Page Header ── */
+    .page-header {
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      padding: 48px 24px 40px;
+      text-align: center;
+      position: relative;
+    }
+    .back-link {
+      position: absolute;
+      top: 20px; left: 20px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--green); text-decoration: none; }
+    .page-header h1 {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700; letter-spacing: -0.02em; line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .accent-green { color: var(--green); }
+    .accent-purple { color: var(--purple); }
+    .page-header .subtitle {
+      color: var(--text-secondary); font-size: 1rem;
+      max-width: 520px; margin: 0 auto 0;
+    }
+    .contrib-count {
+      display: inline-block;
+      margin-top: 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 4px 14px;
+    }
+
+    /* ── Page Layout ── */
+    .page-body {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* ── How To Contribute ── */
+    .how-to-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--green-border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 40px;
+    }
+    .how-to-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--green);
+      margin-bottom: 14px;
+    }
+    .how-to-steps {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .how-to-steps li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .step-num {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--green-muted);
+      border: 1px solid var(--green-border);
+      color: var(--green);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* ── Recs Grid ── */
+    .recs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── Rec Card ── */
+    .rec-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .rec-card:hover { border-color: var(--purple-border); }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 20px;
+      background: var(--bg-overlay);
+      border-bottom: 1px solid var(--border);
+    }
+    .card-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 16px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .card-name {
+      font-size: 15px; font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+    .card-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .github-link {
+      color: var(--purple);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    .github-link:hover { color: #a66fff; text-decoration: none; }
+    .location-text { color: var(--text-muted); font-size: 12px; }
+
+    .card-body {
+      padding: 16px 20px 20px;
+    }
+
+    /* ── Categories ── */
+    .category { margin-bottom: 16px; }
+    .category:last-child { margin-bottom: 0; }
+    .category-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .rec-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .rec-item {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      padding-left: 12px;
+      border-left: 2px solid var(--border);
+    }
+    .rec-name {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .rec-sep {
+      color: var(--text-muted);
+    }
+    .rec-desc {
+      color: var(--text-secondary);
+    }
+
+    /* ── States ── */
+    .state-message {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      padding: 40px 0;
+    }
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+    .empty-sub { font-size: 14px; color: var(--text-muted); }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .page-body { padding: 24px 16px 60px; }
+      .page-header { padding: 48px 16px 28px; }
+      .back-link { top: 16px; left: 16px; }
+      .recs-grid { grid-template-columns: 1fr; }
+      .how-to-card { padding: 16px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Page header -->
+  <header class="page-header">
+    <a href="../" class="back-link">← Back to lesson</a>
+    <h1>Community <span class="accent-green">Food</span> <span class="accent-purple">Recs</span></h1>
+    <p class="subtitle">Real recommendations from real contributors. Practice the open source workflow — add your own.</p>
+    <span class="contrib-count" id="contrib-count">loading...</span>
+  </header>
+
+  <div class="page-body">
+
+    <!-- How to contribute -->
+    <div class="how-to-card">
+      <div class="how-to-label">✦ How to Add Your Food Recs</div>
+      <ol class="how-to-steps">
+        <li><span class="step-num">1</span><span><strong>Fork</strong> this repo on GitHub</span></li>
+        <li><span class="step-num">2</span><span>Copy <code>food-rec-template.md</code> and rename it <code>your-github-username.md</code></span></li>
+        <li><span class="step-num">3</span><span>Fill in your favorite spots and why you love them</span></li>
+        <li><span class="step-num">4</span><span>Add your filename to <code>contributors.json</code></span></li>
+        <li><span class="step-num">5</span><span>Push to your fork and open a <strong>pull request</strong>. Once merged, you'll appear here</span></li>
+      </ol>
+    </div>
+
+    <!-- Cards -->
+    <div class="recs-grid" id="recs-grid">
+      <p class="state-message">Loading...</p>
+    </div>
+
+  </div>
+
+  <script>
+    async function init() {
+      const grid = document.getElementById('recs-grid');
+      const countEl = document.getElementById('contrib-count');
+
+      try {
+        const res = await fetch('contributors.json');
+        if (!res.ok) throw new Error('Could not load contributors.json');
+        const files = await res.json();
+
+        // Skip the template file
+        const toLoad = files.filter(f => f !== 'food-rec-template.md');
+
+        if (toLoad.length === 0) {
+          showEmpty(grid);
+          countEl.textContent = '0 contributors';
+          return;
+        }
+
+        const results = await Promise.allSettled(toLoad.map(fetchRec));
+        const recs = results
+          .filter(r => r.status === 'fulfilled' && r.value !== null)
+          .map(r => r.value);
+
+        if (recs.length === 0) {
+          showEmpty(grid);
+          countEl.textContent = '0 contributors';
+          return;
+        }
+
+        countEl.textContent = `${recs.length} contributor${recs.length !== 1 ? 's' : ''}`;
+        grid.innerHTML = '';
+        recs.forEach(rec => grid.appendChild(renderCard(rec)));
+
+      } catch (err) {
+        grid.innerHTML = '<p class="state-message">Failed to load food recs. Make sure you\'re serving this with a local server (not opening as a file).</p>';
+        countEl.textContent = 'error';
+      }
+    }
+
+    async function fetchRec(filename) {
+      try {
+        const res = await fetch(filename);
+        if (!res.ok) return null;
+        const text = await res.text();
+        return parseRec(text, filename);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function parseRec(text, filename) {
+      const lines = text.split('\n');
+      const meta = {
+        name: filename.replace('.md', ''),
+        github: null,
+        location: null
+      };
+      let bodyStart = 0;
+
+      // Parse YAML frontmatter
+      if (lines[0].trim() === '---') {
+        let i = 1;
+        while (i < lines.length && lines[i].trim() !== '---') {
+          const colonIdx = lines[i].indexOf(':');
+          if (colonIdx > 0) {
+            const key = lines[i].slice(0, colonIdx).trim();
+            const val = lines[i].slice(colonIdx + 1).trim();
+            meta[key] = val;
+          }
+          i++;
+        }
+        bodyStart = i + 1;
+      }
+
+      const body = lines.slice(bodyStart).join('\n');
+
+      // Parse ## sections into categories
+      const categories = [];
+      const sections = body.split(/\n(?=## )/);
+
+      for (const section of sections) {
+        const sLines = section.trim().split('\n');
+        if (!sLines[0].startsWith('## ')) continue;
+
+        const categoryName = sLines[0].slice(3).trim();
+        const items = [];
+
+        for (let i = 1; i < sLines.length; i++) {
+          const line = sLines[i].trim();
+          if (!line.startsWith('- ')) continue;
+
+          const content = line.slice(2);
+          // Support both — (em dash) and -- (double hyphen)
+          const match = content.match(/^\*\*(.+?)\*\*\s*(?:—|--)\s*(.+)$/);
+          if (match) {
+            items.push({ name: match[1], description: match[2] });
+          } else {
+            // Name-only rec (no description)
+            items.push({ name: content.replace(/^\*\*(.+?)\*\*$/, '$1'), description: '' });
+          }
+        }
+
+        if (items.length > 0) {
+          categories.push({ name: categoryName, items });
+        }
+      }
+
+      return { meta, categories };
+    }
+
+    function avatarColor(str) {
+      const palettes = [
+        { bg: 'rgba(133,52,243,0.25)', color: '#a66fff' },
+        { bg: 'rgba(15,191,62,0.25)',  color: '#0FBF3E' },
+        { bg: 'rgba(59,130,246,0.25)', color: '#60a5fa' },
+        { bg: 'rgba(227,179,65,0.25)', color: '#e3b341' },
+        { bg: 'rgba(236,72,153,0.25)', color: '#f472b6' },
+      ];
+      let h = 0;
+      for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+      return palettes[Math.abs(h) % palettes.length];
+    }
+
+    function esc(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderCard({ meta, categories }) {
+      const card = document.createElement('div');
+      card.className = 'rec-card';
+
+      const color = avatarColor(meta.github || meta.name || 'x');
+      const initial = (meta.name || meta.github || '?')[0].toUpperCase();
+
+      const githubHtml = meta.github
+        ? `<a href="https://github.com/${esc(meta.github)}" target="_blank" rel="noopener" class="github-link">@${esc(meta.github)}</a>`
+        : '';
+      const locationHtml = meta.location
+        ? `<span class="location-text">· ${esc(meta.location)}</span>`
+        : '';
+
+      const catsHtml = categories.map(cat => `
+        <div class="category">
+          <h3 class="category-name">${esc(cat.name)}</h3>
+          <ul class="rec-list">
+            ${cat.items.map(item => `
+              <li class="rec-item">
+                <span class="rec-name">${esc(item.name)}</span>${item.description
+                  ? `<span class="rec-sep"> — </span><span class="rec-desc">${esc(item.description)}</span>`
+                  : ''}
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      `).join('');
+
+      card.innerHTML = `
+        <div class="card-header">
+          <div class="card-avatar" style="background:${color.bg};color:${color.color}">${initial}</div>
+          <div class="card-info">
+            <div class="card-name">${esc(meta.name || meta.github || 'Anonymous')}</div>
+            <div class="card-meta">${githubHtml}${locationHtml}</div>
+          </div>
+        </div>
+        <div class="card-body">
+          ${catsHtml || '<p style="font-size:13px;color:var(--text-muted)">No recs yet.</p>'}
+        </div>
+      `;
+
+      return card;
+    }
+
+    function showEmpty(grid) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <p class="empty-icon">🍽️</p>
+          <p class="empty-title">No food recs yet</p>
+          <p class="empty-sub">Be the first to contribute! Follow the steps above.</p>
+        </div>
+      `;
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
