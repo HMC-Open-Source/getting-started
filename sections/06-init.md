@@ -9,7 +9,7 @@ Try this exercise out in your own personal. If you've never used GitHub Organiza
 find the opton in the top left-hand corner.
 
 <!-- Path for images must be in this format. Local testing might not work -->
-<img src="/getting-started/images/switch.png" class="lesson-img"
+<img src="images/switch.png" class="lesson-img"
 alt="screenshot of user profile and organizaiton" />
 
 [/ACCORDION]
