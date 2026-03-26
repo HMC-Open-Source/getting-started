@@ -1,7 +1,7 @@
 Here's the full lifecycle of a contribution — from branching off main to cleaning up after 
 merge.
 
-![git workflow diagram](../images/workflow-diagram.svg)
+![git workflow diagram](/getting-started/images/workflow-diagram.svg)
 
 The important thing to notice is that main appears at both the start and end. Main is a 
 continuous, stable timeline. Your branch is a temporary workspace that lives alongside it, 

@@ -8,7 +8,7 @@ organization.
 Try this exercise out in your own personal. If you've never used GitHub Organizations, you can
 find the opton in the top left-hand corner.
 
-<img src="../images/switch.png" class="lesson-img"
+<img src="/getting-started/images/switch.png" class="lesson-img"
 alt="screenshot of user profile and organizaiton" />
 
 [/ACCORDION]
