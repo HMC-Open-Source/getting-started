@@ -1,6 +1,7 @@
 Here's the full lifecycle of a contribution — from branching off main to cleaning up after 
 merge.
 
+<!-- Path for images must be in this format. Local testing might not work -->
 ![git workflow diagram](/getting-started/images/workflow-diagram.svg)
 
 The important thing to notice is that main appears at both the start and end. Main is a 
