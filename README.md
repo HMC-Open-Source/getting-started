@@ -97,4 +97,19 @@ Private repos will only be viewable to HMC Open Source Orgs.
 
 ### Repo Admin Autonomy
 Repos that you create are yours to maintain. You can manage members, set
-permissions, and manage PRs. 
+permissions, and manage PRs. Please ensure that you abide by the HMC Honor 
+Code and other policies and practices listed in this repo.
+
+### Contributing
+Admins should set protections from writers pushing directly to main. All 
+members should get in the habit of making changes through branches and 
+submitting PRs.
+
+### Opting in/out of training AI models
+*Your individual profile settings* has a setting for opting out of using your
+GitHub account for training AI models. This is completely up to you to opt in
+or opt out. By default, GitHub has you opted in. 
+
+You can click on your profile picture > "Settings" > "Copilot" > "Features" >
+scroll down to the "Privacy" section and find the field "Allow GitHub to use my 
+data for AI model training". 
