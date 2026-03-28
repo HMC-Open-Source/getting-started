@@ -53,14 +53,12 @@ Think of it like: `original repo → your GitHub fork → your machine`. The for
 [/ACCORDION]
 
 [PRACTICE title="🛠 Real World Practice"]
-The **HMC Open Source Get Started repo** has a food spots activity where you can practice the full external contributor workflow.
+This repo has a **[Community Food Recs](food-recs/index.html)** page where you can practice the full external contributor workflow for real.
 
-You'll add a new `.md` file to the food spots folder — one file per contribution.
-
-*The Get Started repo link will be added here once it's live.*
-- Forked the Get Started repo
+You'll create a `.md` file with your food recommendations, add it to the manifest, and submit a pull request — it'll appear on the page once merged.
+- Forked this repo on GitHub
 - Cloned my fork locally
-- Added upstream remote
-- Created a branch and added my food spot file
+- Added the upstream remote
+- Created a branch and added my food recs file
 - Pushed to my fork and opened a PR
 [/PRACTICE]
