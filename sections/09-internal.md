@@ -63,6 +63,29 @@ fatal: Could not read from remote repository.
 You'd never reach the PR stage — git can't push the branch up in the first place. This is exactly the problem that **forking** solves (see the External Contributor section).
 [/ACCORDION]
 
+[ACCORDION title="Common Problems"]
+(1) Trying to run "git pull origin main" in your local copy of a repo leads to this error message:
+
+```
+fatal: Need to specify how to reconcile divergent branches.
+```
+
+There may be commits in the GitHub repo that differ from commits in your local repo. You can specify that you want these versions to be merged by running "git config pull.rebase false."
+
+(2) Trying to run "git pull origin main" in your local copy of a repo leads to this error message:
+
+```
+fatal: refusing to merge unrelated histories
+```
+
+This means that the GitHub repo and your local repo have no shared history. It might happen if you used "git init" to create your local repo and are trying to merge with a GitHub repo that already had commits, or the remote (GitHub) repo was initialized with a README (GitHub creates an initial commit that your local repo does not have). 
+
+One solution is running "git pull origin main --allow-unrelated-histories". After, you will see a series of prompts. First, there will likely be a folder of duplicated files (from the GitHub repo) in your workspace. Decide which copies of the files you want to keep, and delete the rest. Then you can stage your changes with the normal commands: "git add .", "git commit -m ". Next, you may be prompted to enter a commit message explaining why the merge is necessary. You can type a message, or just press enter (or whatever keyboard shortcut it says for Exit) to use the default message. If asked whether you want to "Save modified buffer?" you can also just press enter/Y. This is just confirming that you want to save your changes. For the "File Name to Write" prompt, press enter again to use the default.
+
+Now you can run "git status" and "ls" to check that everything is up to date and the files that you expect are in your workspace.
+
+[/ACCORDION]
+
 [PRACTICE title="🛠 Real World Practice"]
 Find one of your own projects and try uploading it to your GitHub account using the workflow above.
 
